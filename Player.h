@@ -1,54 +1,33 @@
-#include "entity.h";
-#include <conio.h>
-#include <stack>
+#ifndef PLAYER_H
+#define PLAYER_H
 
-class Player:protected Entity{
-    private:
-    int XP;
-    int energy;
-    struct position
-    {
-        int x,y;
-        position(int _x=0, int _y=0){
-            x=x=_x;
-            y=_y;
-        }
-    };
-    position p;
-    double health;
+#include "Entity.h"
+#include <vector>
+#include <memory>
+#include "Item.h"
 
-    public:
+class Player : public Entity {
+private:
+    std::vector<std::unique_ptr<Item>> inventory;
+    int XP=0;
+    int attackPower;
 
-    Player(std::string n,std::string t, position _p,double h,int _XP,int _energy)
-        :Entity(n,t){
-            health=h;
-            XP=_XP;
-            energy=_energy;
-        }
+public:
+    Player(int startX, int startY, int health);
 
-    //Updates player position
-    position Movement(char y){
-        if(y == 'w'){
-            return p.y+y;
-        }
-        else if(y == 'a'){
-            return p.x-y;
-        }
-        else if(y == 's'){
-            return p.y-y;
-        }
-        else if(y == 'd'){
-            return p.x+y;
-        }
-    }
+    void update(int pX,int pY) override;
+    char getSymbol()const override;
 
-    void update(){
+    void attack(Entity& target);
+    void useItem(int index);
+    void addItem(std::unique_ptr<Item> item); //Takes ownership of items using move
 
-    }
+    void heal(int amount);
 
-    //Handles player level using XP member
-    int Levels(){
+    int getXP()const;
+    int getAttackPower()const;
+    int getInventorySize()const;
 
-    }
-
+    void setXP(int ammount);
 };
+#endif
