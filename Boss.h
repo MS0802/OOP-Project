@@ -7,7 +7,9 @@ class Boss : public Enemy {
 public:
     Boss(int startX, int startY, int health, int atk);
 
+    char getSymbol()const override;
     void specialMove(Entity& target);
+    std::unique_ptr<Item> dropItem() override;//Always drops something rare (cant be nullptr by default)
 };
 
 #endif

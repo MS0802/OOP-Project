@@ -11,7 +11,8 @@ protected:
 public:
     Item(const std::string& itemName);
     virtual ~Item() {}
-
+    
+    const std::string& getName()const;//will probably use in render for inventory display
     virtual void use(Player& player) = 0;
 };
 
