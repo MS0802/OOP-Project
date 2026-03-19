@@ -1,6 +1,3 @@
-#ifndef PLAYER_H
-#define PLAYER_H
-
 #include "Entity.h"
 #include <vector>
 #include <memory>
@@ -13,21 +10,43 @@ private:
     int attackPower;
 
 public:
-    Player(int startX, int startY, int health);
+    Player(string name, string type , position _pos, int health,int attackp)
+    :Entity(name,type,_pos,health){
+        attackPower = attackp;
+    }
 
-    void update(int pX,int pY) override;
+    void update(int pX,int pY) override{
+        p.x = pX;
+        p.y = pY;
+    }
+
     char getSymbol()const override;
 
     void attack(Entity& target);
     void useItem(int index);
     void addItem(std::unique_ptr<Item> item); //Takes ownership of items using move
 
-    void heal(int amount);
+    void heal(int amount){
+        if (amount >=0){
+            health += amount;
+        }
 
-    int getXP()const;
-    int getAttackPower()const;
+        //exception handling to be applied
+    }
+
+    int getXP()const{
+        return XP;
+    }
+    int getAttackPower()const{
+        return attackPower;
+    }
     int getInventorySize()const;
 
-    void setXP(int ammount);
+    void setXP(int ammount){
+        if (amount >=0){
+            XP+= amount;
+        }
+
+        //exception hadling
+    }
 };
-#endif

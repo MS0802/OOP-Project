@@ -4,18 +4,17 @@ class Entity{
     private:
     std::string name;
     std::string type;
-    struct position
-    {
+    struct position{
         int x,y;
         position(int _x, int _y){
-            x=x=_x;
-            y=_y;
+            x =_x;
+            y =_y;
         }
     };
     position p;
     double health;
     
-    public:
+public:
 
     //constructor
     Entity(std::string n,std::string t, position _p,double h)
