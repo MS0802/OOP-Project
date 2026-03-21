@@ -1,20 +1,43 @@
 #include<string>
 
-class Entity{
-    private:
-    std::string name;
-    std::string type;
-    
+class Entity {
+protected:
+    int x, y;
+    int hp;
+
 public:
+    Entity(int startX, int startY, int health)
+        :x(startX), y(startY),hp(health){}
+    virtual ~Entity() {}
 
-    //constructor
-    Entity(std::string n,std::string t, position _p,double h)
-        : name(n), type(t), p(_p), health(h){}
-    
-    //Pure virtual render and update functions
-    void virtual update()=0;
-    void virtual render()=0;
+    virtual void update(int pX,int pY) = 0;
 
-    //currently thinking of using default destructor
-    ~Entity()=default;
+    void move(int dx=0, int dy=0){
+        x=x+dx;
+        y=y+dy;
+    }
+
+    void takeDamage(int dmg){
+        if(dmg>hp){
+         hp=hp-dmg;
+         return;
+            }
+        hp=0;
+        return;
+    }
+
+    int getX() const{
+        return x;
+    }
+    int getY() const{
+        return y;
+    }
+    int getHP() const{
+        return hp;
+    }
+    bool isAlive() const{
+        if(hp>0)    return true;
+        else        return false;
+    }
+    virtual char getSymbol() const = 0;
 };
