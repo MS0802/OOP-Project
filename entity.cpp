@@ -4,15 +4,6 @@ class Entity{
     private:
     std::string name;
     std::string type;
-    struct position{
-        int x,y;
-        position(int _x, int _y){
-            x =_x;
-            y =_y;
-        }
-    };
-    position p;
-    double health;
     
 public:
 

@@ -2,6 +2,7 @@
 #define WEAPON_H
 
 #include "Item.h"
+class PLayer;
 
 class Weapon : public Item {
 private:
