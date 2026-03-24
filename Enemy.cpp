@@ -18,7 +18,10 @@ public:
     void attack(Entity& target){
         if (attackPower > target.getHP()){
             target.sethp(0);
-
+            cout<<"player died";
+        }
+        else {
+            target.sethp(target.getHP() - attackPower);
         }
     }
 
