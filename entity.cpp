@@ -1,43 +1,44 @@
-#include<string>
-
-class Entity {
+class Entity{
 protected:
-    int x, y;
-    int hp;
-
+    string name;
+    string type;
+    struct position
+    {
+        int x,y;
+        position(int _x, int _y){
+            x =_x;
+            y=_y;
+        }
+    };
+    position p;
+    double health;
+    double maxhealth;
+    
 public:
-    Entity(int startX, int startY, int health)
-        :x(startX), y(startY),hp(health){}
-    virtual ~Entity() {}
 
-    virtual void update(int pX,int pY) = 0;
+    //constructor
+    Entity(string n,string typ, position _p,double h, double maxh)
+        :name(n) , type(typ) ,p(_p), health(h) , maxhealth(maxh){}
+    
+    //Pure virtual render and update functions
+    virtual void update()=0;
+    virtual void render()=0;
 
-    void move(int dx=0, int dy=0){
-        x=x+dx;
-        y=y+dy;
-    }
-
-    void takeDamage(int dmg){
-        if(dmg>hp){
-         hp=hp-dmg;
-         return;
-            }
-        hp=0;
-        return;
+    virtual void sethealth(int h){
+        if (h >0){
+            health = h;
+        }
     }
 
-    int getX() const{
-        return x;
+    virtual int gethealth(){
+        return health;
     }
-    int getY() const{
-        return y;
+
+    virtual string gettype(){
+        return type;
     }
-    int getHP() const{
-        return hp;
-    }
-    bool isAlive() const{
-        if(hp>0)    return true;
-        else        return false;
-    }
-    virtual char getSymbol() const = 0;
+
+
+    //currently thinking of using default destructor
+    ~Entity()=default;
 };
