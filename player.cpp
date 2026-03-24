@@ -6,8 +6,8 @@ private:
     int attackPower;
 
 public:
-    Player(string n, string typ, position _pos, int h,int attackp)
-    :Entity(n, typ, _pos, h){
+    Player(string n, string typ, position _pos, double h, double maxh, int attackp)
+    :Entity(n, typ, _pos, h, maxh){
         attackPower = attackp;
     }
 
@@ -76,6 +76,6 @@ public:
             XP+= amount;
         }
 
-        //exception hadling
+        //exception handling
     }
 };
