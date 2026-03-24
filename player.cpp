@@ -1,3 +1,8 @@
+#include "Entity.h"
+#include <vector>
+#include <memory>
+#include "Item.h"
+
 class Player : public Entity {
 private:
     string name;
@@ -6,14 +11,15 @@ private:
     int attackPower;
 
 public:
-    Player(string n, string typ, position _pos, double h, double maxh, int attackp)
-    :Entity(n, typ, _pos, h, maxh){
+    Player(string n,int x , int y,  int h, int maxh, int attackp)
+    :Entity(x,y, h, maxh){
+        name = n;
         attackPower = attackp;
     }
 
     void update(int pX,int pY) {  // cant be overridden because base class update has no parameters
-        p.x = pX;
-        p.y = pY;
+        x = pX;
+        y = pY;
     }
 
     char getSymbol() const{
@@ -21,9 +27,9 @@ public:
     }
 
     void attack(Entity& target){
-        if (target.gethealth() >0 && attackPower>0 ){
+        if (target.getHP() >0 && attackPower>0 ){
             int h;
-            h = target.gethealth() - attackPower;
+            h = target.getHP() - attackPower;
             if (h<0){
                 // remove the enemy dunno how
 
@@ -58,9 +64,9 @@ public:
             }
 
         }
-        //else{
-            //exception handling to be applied
-        //}
+        else{
+            cout<<"heal amount < 0";
+        }
     }
 
     int getXP()const{
@@ -75,7 +81,8 @@ public:
         if (amount >=0){
             XP+= amount;
         }
-
-        //exception handling
+        else{
+            cout<<"xp less than 0";
+        }
     }
 };
