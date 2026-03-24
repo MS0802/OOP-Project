@@ -1,44 +1,53 @@
 class Entity{
 protected:
-    string name;
-    string type;
-    struct position
-    {
-        int x,y;
-        position(int _x, int _y){
-            x =_x;
-            y=_y;
-        }
-    };
-    position p;
-    double health;
-    double maxhealth;
+    int x,y;
+    int health;
+    int maxhealth;
     
 public:
 
     //constructor
-    Entity(string n,string typ, position _p,double h, double maxh)
-        :name(n) , type(typ) ,p(_p), health(h) , maxhealth(maxh){}
+    Entity(int startX, int startY, int h, int maxh){
+        x = startX;
+        y = startY;
+        health = h;
+        maxhealth = maxh;
+    }
     
-    //Pure virtual render and update functions
-    virtual void update()=0;
-    virtual void render()=0;
+    virtual ~Entity() {}
 
-    virtual void sethealth(int h){
-        if (h >0){
-            health = h;
+    virtual void update(int pX,int pY) = 0;
+    void move(int dx, int dy){
+        x = x + dx;
+        y = y + dy;
+    }
+    
+    void takeDamage(int dmg){
+        if (dmg < health ){
+            health = health - dmg;
+        }
+        else{
+            health =0;
+            // how to remove player?
         }
     }
 
-    virtual int gethealth(){
+    int getX() const{
+        return x;
+    }
+    int getY() const{
+        return y;
+    }
+    int getHP() const{
         return health;
     }
-
-    virtual string gettype(){
-        return type;
+    bool isAlive() const{
+        if (health >0){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
-
-
-    //currently thinking of using default destructor
-    ~Entity()=default;
+    virtual char getSymbol() const = 0;
 };
