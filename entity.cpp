@@ -1,53 +1,43 @@
-class Entity{
-protected:
-    int x,y;
-    int health;
-    int maxhealth;
-    
-public:
+#include"entity.h"
 
-    //constructor
-    Entity(int startX, int startY, int h, int maxh){
-        x = startX;
-        y = startY;
-        health = h;
-        maxhealth = maxh;
-    }
-    
-    virtual ~Entity() {}
+Entity::Entity(std::string name, int startX, int startY, size_t HP, size_t MaxHP, int def) : 
+Name(name), position(startX, startY), hp(HP), maxHP(MaxHP), def(def) {}
 
-    virtual void update(int pX,int pY) = 0;
-    void move(int dx, int dy){
-        x = x + dx;
-        y = y + dy;
-    }
-    
-    void takeDamage(int dmg){
-        if (dmg < health ){
-            health = health - dmg;
-        }
-        else{
-            health =0;
-            // how to remove player?
-        }
-    }
+Entity::Entity() : position(0, 0), Name(), effects(), maxHP(0), hp(0) {}
 
-    int getX() const{
-        return x;
+void Entity::move(int pX, int pY) {
+    position.x += pX;
+    position.y += pY;
+}
+
+void Entity::takeDamage(int dmg) {
+    if(dmg > HP()) {
+        hp = 0;
     }
-    int getY() const{
-        return y;
+    else {
+        hp -= dmg;
     }
-    int getHP() const{
-        return health;
+}
+
+void Entity::Healing(size_t heal) {
+    if(heal + HP() > MaxHP()) {
+        hp = MaxHP();
     }
-    bool isAlive() const{
-        if (health >0){
-            return true;
-        }
-        else {
-            return false;
-        }
+    else {
+        hp += heal;
     }
-    virtual char getSymbol() const = 0;
-};
+}
+
+int Entity::PosX() const { return position.x; }
+int Entity::posY() const { return position.y; }
+size_t Entity::HP() const { return hp; }
+size_t Entity::MaxHP() const { return maxHP; }
+bool Entity::isAlive() const { return (hp > 0); }
+void Entity::Effect_Add(Effect other) {
+    if(effects.count(other.Effect_Give())) {
+        effects[other.Effect_Give()].Time() += other.Time();
+    }
+    else {
+        effects[other.Effect_Give()] = other;
+    }
+}
