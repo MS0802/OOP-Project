@@ -1,24 +1,37 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#pragma once
+#include"Vector2.h"
+#include<string>
+#include<unordered_map>
+#include<memory>
+#include"Effect.h"
 
 class Entity {
-protected:
-    int x, y;
-    int hp;
+    protected:
+        Vector2<int> position;
+        size_t hp;
+        const size_t maxHP;
+        std::string Name;
+        std::unordered_map<EffectType, Effect> effects;
+        int def;
 
-public:
-    Entity(int startX, int startY, int health);
-    virtual ~Entity() {}
+        Entity(std::string name, int startX, int startY, size_t health, size_t MaxHP, int def);
+        Entity();
+    public:
+        virtual ~Entity() = default;
 
-    virtual void update(int pX,int pY) = 0;
-    void move(int dx, int dy);
-    void takeDamage(int dmg);
+        virtual void update(int pX,int pY) = 0;
+        void move(int dx, int dy);
+        void takeDamage(int dmg);
+        void Healing(size_t heal);
+        virtual int Damage() const = 0;
+        virtual int Defense() const = 0;
+        virtual void Effect_Action() = 0;
+        virtual void Effect_Add(Effect other);
 
-    int getX() const;
-    int getY() const;
-    int getHP() const;
-    bool isAlive() const;
-    virtual char getSymbol() const = 0;
+        int PosX() const;
+        int posY() const;
+        size_t HP() const;
+        size_t MaxHP() const;
+        bool isAlive() const;
+        virtual char getSymbol() const = 0;
 };
-
-#endif
