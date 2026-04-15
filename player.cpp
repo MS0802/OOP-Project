@@ -1,88 +1,42 @@
-#include "Entity.h"
-#include <vector>
-#include <memory>
-#include "Item.h"
+#include"Player.h"
+#include"Weapon.h"
 
-class Player : public Entity {
-private:
-    string name;
-    std::vector<std::unique_ptr<Item>> inventory;
-    int XP=0;
-    int attackPower;
+Player::Player(const std::string& Name, int startX, int startY, size_t HP, size_t MaxHP, int def, int XP) : 
+Entity(Name, startX, startY, HP, MaxHP, def), xp(XP), inventory() {}
 
-public:
-    Player(string n,int x , int y,  int h, int maxh, int attackp)
-    :Entity(x,y, h, maxh){
-        name = n;
-        attackPower = attackp;
+Player::Player() : 
+Entity(), xp(0), inventory() {}
+
+void Player::update(int pX, int pY) {
+    position.x += pX;
+    position.y += pY;
+}
+
+char Player::getSymbol() const { return 'P'; }
+int Player::Damage() const {
+    if(On_Hand != nullptr && On_Hand->Type() == ItemType::WEAPON) {
+        Weapon* onhandWeapon = dynamic_cast<Weapon*>(On_Hand.get());
+        int dmg = onhandWeapon->Damage();
+        return dmg;
     }
+    return DefaultPlayerDamage;
+}
 
-    void update(int pX,int pY) {  // cant be overridden because base class update has no parameters
-        x = pX;
-        y = pY;
-    }
+void Player::attack(Entity& target) {
+    //code left
+}
 
-    char getSymbol() const{
-        return 'P';
-    }
+void Player::useItem(int index) {
+    //code left
+}
 
-    void attack(Entity& target){
-        if (target.getHP() >0 && attackPower>0 ){
-            int h;
-            h = target.getHP() - attackPower;
-            if (h<0){
-                // remove the enemy dunno how
+void Player::addItem(std::unique_ptr<Item> item, int amount) {
+    inventory.push_back(ItemStack(std::move(item), amount));
+}
 
-                if (target.gettype() == "mage"){
-                    XP += 10; //not sure
-                }
-                else if (target.gettype() == "warrior"){
-                    XP += 15;
-                }
-                else if (target.gettype() == "bomber"){
-                    XP += 5;
-                }
-                // code if more types
+void Player::Effect_Action(EffectType type) {
+    //effect
+}
 
-            }
-            else{
-                target.sethealth(h);
-            }
-        }
-    }
-
-    void useItem(int index);
-    void addItem(std::unique_ptr<Item> item); //Takes ownership of items using move
-
-    void heal(int amount){
-        if (amount >= 0){
-            if (health + amount > maxhealth){
-                health = maxhealth;
-            }
-            else{
-                health += amount;
-            }
-
-        }
-        else{
-            cout<<"heal amount < 0";
-        }
-    }
-
-    int getXP()const{
-        return XP;
-    }
-    int getAttackPower()const{
-        return attackPower;
-    }
-    int getInventorySize()const;
-
-    void setXP(int amount){
-        if (amount >=0){
-            XP+= amount;
-        }
-        else{
-            cout<<"xp less than 0";
-        }
-    }
-};
+int Player::XP() const { return xp; }
+int Player::InventorySize() const { return inventory.size(); }
