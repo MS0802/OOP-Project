@@ -1,25 +1,27 @@
-#ifndef ENEMY_H
-#define ENEMY_H
-
-#include "Entity.h"
-#include "Item.h"
-#include <memory>
+#pragma once
+#include"Entity.h"
+#include"Item.h"
+#include<memory>
+#include<array>
+#include<random>
 
 class Enemy : public Entity {
-protected:
-    int attackPower;
+    protected:
+        std::array<std::unique_ptr<Item>, 3> drops;
+        size_t xp;
+        int dmg;
+    public:
+        Enemy(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage);
+        void update(int x, int y) override;
+        char getSymbol() const override;
 
-public:
-    Enemy(int startX, int startY, int health, int atk);
+        void attack(Entity& target);
+        int Damage() const override;
+        int Defense() const override;
+        size_t XP() const;
 
-    void update(int X,int Y) override;//Will probably be used to implement player tracking AI
-    char getSymbol()const override;
+        void Effect_Action() override;
 
 
-    void attack(Entity& target);
-    int getAttackPower()const;
-
-    virtual std::unique_ptr<Item> dropItem();//returns nullptr by default
+        virtual std::array<std::unique_ptr<Item>, 3> dropItem();
 };
-
-#endif
