@@ -41,3 +41,5 @@ void Entity::Effect_Add(Effect other) {
         effects[other.Effect_Give()] = other;
     }
 }
+
+//My edit
