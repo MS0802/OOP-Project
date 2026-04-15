@@ -1,30 +1,31 @@
+#pragma once
 #include "Entity.h"
 #include <vector>
 #include <memory>
 #include "Item.h"
 
+const int DefaultPlayerDamage = 1;
+
 class Player : public Entity {
-private:
-    std::vector<std::unique_ptr<Item>> inventory;
-    int XP=0;
-    int attackPower;
+    private:
+        std::vector<ItemStack> inventory;
+        std::unique_ptr<Item> On_Hand;
+        int xp;
+    public:
+        Player(const std::string& Name, int startX, int startY, size_t HP, size_t MaxHP, int def, int XP);
+        Player();
 
-public:
-    Player(int x, int y,int health, int maxhealth ,int attackp){}
+        void update(int pX, int pY) override;
 
-    void update(int pX,int pY) override{}
+        char getSymbol() const override;
 
-    char getSymbol()const override;
+        int Damage() const override;
+        void attack(Entity& target);
+        void useItem(int index);
+        void addItem(std::unique_ptr<Item> item, int amount); //Takes ownership of items using move
 
-    void attack(Entity& target);
-    void useItem(int index);
-    void addItem(std::unique_ptr<Item> item); //Takes ownership of items using move
+        void Effect_Action(EffectType type);
 
-    void heal(int amount){}
-
-    int getXP()const{}
-    int getAttackPower()const{}
-    int getInventorySize()const;
-
-    void setXP(int amount){}
+        int XP() const;
+        int InventorySize() const;
 };
