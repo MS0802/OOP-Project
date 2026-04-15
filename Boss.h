@@ -1,15 +1,11 @@
-#ifndef BOSS_H
-#define BOSS_H
-
-#include "Enemy.h"
+#pragma once
+#include"Enemy.h"
 
 class Boss : public Enemy {
-public:
-    Boss(int startX, int startY, int health, int atk);
+    public:
+        Boss(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage);
 
-    char getSymbol()const override;
-    void specialAttack(Entity& target);
-    std::unique_ptr<Item> dropItem() override;//Always drops something rare (cant be nullptr by default)
+        char getSymbol()const override;
+        void specialAttack(Entity& target);
+        std::array<std::unique_ptr<Item>, 3> dropItem() override;
 };
-
-#endif
