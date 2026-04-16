@@ -1,17 +1,16 @@
-#ifndef WEAPON_H
-#define WEAPON_H
-
-#include "Item.h"
-class PLayer;
+#pragma once
+#include"Item.h"
+#include<vector>
 
 class Weapon : public Item {
-private:
-    int damage;
+    protected:
+        int damage;
+        int durability;
+        std::vector<ItemStack> Recipie;
+    public:
+        Weapon(const std::string& name, const std::string& id, int dmg, int durability, const std::vector<ItemStack>& Recipie);
+        Weapon();
 
-public:
-    Weapon(const std::string& name, int dmg);
-
-    void use(Player& player) override;
+        void use(Player& player) override;
+        int Damage() const;
 };
-
-#endif
