@@ -1,16 +1,13 @@
-#ifndef POTION_H
-#define POTION_H
-
-#include "Item.h"
+#pragma once
+#include"Item.h"
+#include"Effect.h"
 
 class Potion : public Item {
-private:
-    int healAmt;
+    protected:
+        Effect potionEffect;
+    public:
+        Potion(const std::string& name, const std::string& id, EffectType effectType, double duration);
+        Potion(EffectType type);
 
-public:
-    Potion(const std::string& name, int heal);
-
-    void use(Player& player) override;
+        void use(Player& player) override;
 };
-
-#endif
