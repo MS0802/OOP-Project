@@ -1,30 +1,30 @@
-#ifndef TILE_H
-#define TILE_H
-
-#include "Item.h"
-#include <memory>
+#pragma once
+#include"Item.h"
+#include<string>
 
 enum class TileType{
-    FLOOR,
+    GROUND,
     WALL,
     STAIRS_DOWN,
+    STAIRS_UP,
     DOOR,
     CAVE_ENTRANCE,
     DUNGEON_ENTRANCE,
     SHOP_TILE,
-    ZONE_BOUNDARY
+    ZONE_BOUNDARY,
+    RESOURCE
 };
 
 struct Tile{
-    TileType type;
-    std::unique_ptr<Item> item;//if nullptr then there's no item on tile
-    bool isVisible;
-
-    Tile(TileType t= TileType::WALL):type(t),isVisible(true) {}
-
-    //move constructor to tranfer ownership
-    Tile(Tile&&) =default;
-    Tile& operator=(Tile&&) =default;
+    protected:
+        TileType type;
+        std::unique_ptr<Item> item;//if nullptr then there's no item on tile
+        bool walkable;
+        bool breakable;
+    public:
+        Tile(TileType Type, std::unique_ptr<Item>& Item, bool IsWalkable, bool IsBreakable);
+        Tile();
+        Tile(TileType Type, bool IsWalkable, bool IsBreakable);
+        
+        virtual std::string Name() const;
 };
-
-#endif
