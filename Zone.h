@@ -1,5 +1,4 @@
-#ifndef ZONE_H
-#define ZONE_H
+#pragma once
 
 #include "Tile.h"
 #include <vector>
