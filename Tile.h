@@ -8,8 +8,7 @@ enum class TileType{
     STAIRS_DOWN,
     STAIRS_UP,
     DOOR,
-    CAVE_ENTRANCE,
-    DUNGEON_ENTRANCE,
+    ZONE_ENTRANCE,
     SHOP_TILE,
     ZONE_BOUNDARY,
     RESOURCE
