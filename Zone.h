@@ -1,16 +1,18 @@
 #pragma once
 
 #include "Tile.h"
+#include "entity.h"
 #include <vector>
-
-//dimensions of Zone
-const int ZONE_w =20;
-const int ZONE_h =20;
+#include <array>
+#include <memory>
 
 class Zone{
     private:
-    std::vector<std::vector<Tile>> tiles;
-    int zoneX, zoneY;//Zone's position in the floor
+        constexpr size_t zoneLength;
+        constexpr size_t zoneWidth;
+        std::array<std::array<std::unique_ptr<Tiles>,zoneWidth>, zoneLength> tiles;
+        std::vector<std::unique_ptr<Entity>> entities;
+        
 
     public:
     Zone(int zx,int zy);
