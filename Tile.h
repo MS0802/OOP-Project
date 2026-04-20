@@ -5,8 +5,6 @@
 enum class TileType{
     GROUND,
     WALL,
-    STAIRS_DOWN,
-    STAIRS_UP,
     DOOR,
     ZONE_ENTRANCE,
     SHOP_TILE,
@@ -26,4 +24,7 @@ struct Tile{
         Tile(TileType Type, bool IsWalkable, bool IsBreakable);
         
         virtual std::string Name() const;
+        bool Walkable() const;
+        bool Breakable() const;
+        TileType Type() const;
 };
