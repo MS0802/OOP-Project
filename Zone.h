@@ -1,34 +1,25 @@
 #pragma once
-
-#include "Tile.h"
-#include "entity.h"
-#include <vector>
-#include <array>
-#include <memory>
+#include"Tile.h"
+#include"entity.h"
+#include"Vector2.h"
+#include<vector>
+#include<memory>
 
 class Zone{
     private:
-        constexpr size_t zoneLength;
-        constexpr size_t zoneWidth;
-        std::array<std::array<std::unique_ptr<Tiles>,zoneWidth>, zoneLength> tiles;
+        size_t zoneLength;
+        size_t zoneWidth;
+        std::vector<std::vector<std::unique_ptr<Tile>>> tiles;
         std::vector<std::unique_ptr<Entity>> entities;
-        
-
     public:
-    Zone(int zx,int zy);
+        Zone(size_t length, size_t width, const std::vector<std::vector<std::unique_ptr<Tile>>>& Tiles, const std::vector<std::unique_ptr<Entity>>& Entities);
 
-    Tile& getTile(int localX,int localY);
-    const Tile& getTile(int localX,int localY) const;
+        std::unique_ptr<Tile> getTile(int x, int y);
 
-    bool isWalkable(int localX,int localY) const;
+        int ZoneLength() const;
+        int ZoneWidth() const;
 
-    int getZoneX() const;
-    int getZoneY() const;
+        Vector2 Center() const;
 
-    //global coordinates of this zone's top left side
-    int globalOriginX() const; //returns zoneX * ZONE_w
-    int globalOriginY() const; //returns zoneY * ZONE_h
-
+        //rest of the functions are not complete yet
 };
-
-#endif
