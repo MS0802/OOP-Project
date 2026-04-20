@@ -14,6 +14,7 @@ char Enemy::getSymbol() const { return 'E'; }
 int Enemy::Damage() const { return dmg; }
 int Enemy::Defense() const { return def; }
 size_t Enemy::XP() const { return xp; }
+size_t Enemy::HP() const{return hp;}
 
 void Enemy::attack(Entity& target) { target.takeDamage(Damage()); }
 
