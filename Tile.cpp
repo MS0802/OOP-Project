@@ -19,18 +19,17 @@ std::string Tile::Name() const {
             return std::string("Ground Tile");
         case TileType::WALL:
             return std::string("Wall");
-        case TileType::STAIRS_DOWN:
-        case TileType::STAIRS_UP:
-            return std::string("Stairs");
         case TileType::DOOR:
             return std::string("Door");
-        case TileType::CAVE_ENTRANCE:
-            return std::string("Cave Entrance");
-        case TileType::DUNGEON_ENTRANCE:
-            return std::string("Dungeon Entrance");
+        case TileType::ZONE_ENTRANCE:
+            return std::string("Zone Entrance");
         case TileType::SHOP_TILE:
             return std::string("Shop");
         case TileType::ZONE_BOUNDARY:
             return std::string("Boundary");
     }
 }
+
+bool Tile::Walkable() const { return walkable; }
+bool Tile::Breakable() const { return breakable; }
+TileType Tile::Type() const { return type; }
