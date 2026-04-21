@@ -21,8 +21,8 @@ std::string Tile::Name() const {
             return std::string("Wall");
         case TileType::DOOR:
             return std::string("Door");
-        case TileType::ZONE_ENTRANCE:
-            return std::string("Zone Entrance");
+        case TileType::ZONE_EXIT:
+            return std::string("Zone Exit");
         case TileType::SHOP_TILE:
             return std::string("Shop");
         case TileType::ZONE_BOUNDARY:
@@ -33,3 +33,17 @@ std::string Tile::Name() const {
 bool Tile::Walkable() const { return walkable; }
 bool Tile::Breakable() const { return breakable; }
 TileType Tile::Type() const { return type; }
+
+void Tile::ReplaceTile(const Tile& tile, std::unique_ptr<Item>& Dropped_Item) {
+    type = tile.type;
+    item = std::move(Dropped_Item);
+    walkable = tile.walkable;
+    breakable = tile.breakable;
+}
+
+void Tile::ReplaceTile(const Tile& tile) {
+    type = tile.type;
+    item = nullptr;
+    walkable = tile.walkable;
+    breakable = tile.breakable;
+}
