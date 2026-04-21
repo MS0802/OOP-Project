@@ -1,6 +1,6 @@
 #pragma once
 #include"Tile.h"
-#include"entity.h"
+#include"Entity.h"
 #include"Vector2.h"
 #include"Breakable.h"
 #include<vector>
