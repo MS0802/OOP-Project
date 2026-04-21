@@ -6,7 +6,7 @@ enum class TileType{
     GROUND,
     WALL,
     DOOR,
-    ZONE_ENTRANCE,
+    ZONE_EXIT,
     SHOP_TILE,
     ZONE_BOUNDARY,
     RESOURCE
@@ -27,4 +27,7 @@ struct Tile{
         bool Walkable() const;
         bool Breakable() const;
         TileType Type() const;
+
+        void ReplaceTile(const Tile& tile, std::unique_ptr<Item>& Dropped_Item);
+        void ReplaceTile(const Tile& tile);
 };
