@@ -1,4 +1,4 @@
-#include"entity.h"
+#include"Entity.h"
 
 Entity::Entity(std::string name, int startX, int startY, size_t HP, size_t MaxHP, int def) : 
 Name(name), position(startX, startY), hp(HP), maxHP(MaxHP), def(def) {}
