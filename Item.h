@@ -16,9 +16,9 @@ class Item {
         std::string name;
         ItemType type;
         std::string id;
-        size_t stackSize;
+        const size_t stackSize;
 
-        Item(const std::string& itemName, ItemType type, std::string ID, int StackSize);
+        Item(const std::string& itemName, ItemType type, std::string ID, const size_t& StackSize);
         Item(ItemType type);
     public:
         virtual ~Item() {}
