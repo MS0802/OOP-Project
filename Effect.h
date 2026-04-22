@@ -1,8 +1,11 @@
 #pragma once
 #include<algorithm>
 
+constexpr int healingValue = 2;
 constexpr int poisonDamage = 2;
+constexpr int strengthValue = 5;
 constexpr int weaknessValue = 5;
+constexpr int resistanceValue = 3;
 constexpr int vulnerableDefense = 3;
 
 enum class EffectType {
