@@ -1,11 +1,11 @@
 #include"Player.h"
 #include"Weapon.h"
 
-Player::Player(const std::string& Name, int startX, int startY, size_t HP, size_t MaxHP, int def, int XP) : 
-Entity(Name, startX, startY, HP, MaxHP, def), xp(XP), inventory() {}
+Player::Player(const std::string& Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP) : 
+Entity(Name, startX, startY, HP, MaxHP, Defense), xp(XP), inventory(), on_Hand(nullptr) {}
 
 Player::Player() : 
-Entity(), xp(0), inventory() {}
+Entity(), xp(0), inventory(), on_Hand(nullptr) {}
 
 void Player::update(int pX, int pY) {
     position.x += pX;
@@ -14,8 +14,8 @@ void Player::update(int pX, int pY) {
 
 char Player::getSymbol() const { return 'P'; }
 int Player::Damage() const {
-    if(On_Hand != nullptr && On_Hand->Type() == ItemType::WEAPON) {
-        Weapon* onhandWeapon = dynamic_cast<Weapon*>(On_Hand.get());
+    if(on_Hand != nullptr && on_Hand->Type() == ItemType::WEAPON) {
+        Weapon* onhandWeapon = dynamic_cast<Weapon*>(on_Hand.get());
         int dmg = onhandWeapon->Damage();
         return dmg;
     }
