@@ -10,11 +10,11 @@ class Entity {
         Vector2 position;
         size_t hp;
         const size_t maxHP;
-        std::string Name;
+        std::string name;
         std::unordered_map<EffectType, Effect> effects;
         int def;
 
-        Entity(std::string name, int startX, int startY, size_t health, size_t MaxHP, int def);
+        Entity(std::string Name, int startX, int startY, size_t health, size_t MaxHP, int def);
         Entity();
     public:
         virtual ~Entity() = default;
@@ -33,5 +33,6 @@ class Entity {
         size_t HP() const;
         size_t MaxHP() const;
         bool isAlive() const;
+        std::string Name() const;
         virtual char getSymbol() const = 0;
 };
