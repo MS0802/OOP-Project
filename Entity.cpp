@@ -1,9 +1,9 @@
 #include"Entity.h"
 
 Entity::Entity(std::string Name, int startX, int startY, int HP, int MaxHP, int def) : 
-name(Name), position(startX, startY), hp(HP), maxHP(MaxHP), def(def) {}
+name(Name), position(startX, startY), hp(HP), maxHP(MaxHP), defense(def), maxDefense(def) {}
 
-Entity::Entity() : position(0, 0), name(), effects(), maxHP(0), hp(0) {}
+Entity::Entity() : position(0, 0), name(), effects(), maxHP(0), hp(0), defense(0), maxDefense(0) {}
 
 void Entity::move(int pX, int pY) {
     position.x += pX;
@@ -11,11 +11,11 @@ void Entity::move(int pX, int pY) {
 }
 
 void Entity::takeDamage(int dmg) {
-    if((dmg - def) > HP()) {
+    if((dmg - defense) > HP()) {
         hp = 0;
     }
     else {
-        hp -= (dmg - def);
+        hp -= (dmg - defense);
     }
 }
 
@@ -34,6 +34,8 @@ int Entity::HP() const { return hp; }
 int Entity::MaxHP() const { return maxHP; }
 std::string Entity::Name() const { return name; }
 bool Entity::isAlive() const { return (hp > 0); }
+int Entity::Defense() const { return defense; }
+int Entity::MaxDefense() const { return maxDefense; }
 void Entity::Effect_Add(Effect other) {
     if(effects.count(other.Effect_Give())) {
         effects[other.Effect_Give()].Time() += other.Time();
