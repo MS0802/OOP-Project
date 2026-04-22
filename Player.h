@@ -9,10 +9,10 @@ const int DefaultPlayerDamage = 1;
 class Player : public Entity {
     private:
         std::vector<ItemStack> inventory;
-        std::unique_ptr<Item> On_Hand;
+        std::unique_ptr<Item> on_Hand;
         int xp;
     public:
-        Player(const std::string& Name, int startX, int startY, size_t HP, size_t MaxHP, int def, int XP);
+        Player(const std::string& Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP);
         Player();
 
         void update(int pX, int pY) override;
