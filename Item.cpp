@@ -1,6 +1,6 @@
 #include"Item.h"
 
-Item::Item(const std::string& itemName, ItemType type, std::string ID, int StackSize) : 
+Item::Item(const std::string& itemName, ItemType type, std::string ID, const size_t& StackSize) : 
 name(itemName), type(type), id(ID), stackSize(StackSize) {}
 
 Item::Item(ItemType type) : 
