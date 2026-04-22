@@ -1,9 +1,9 @@
 #pragma once
 #include"Vector2.h"
-#include"Effect.h"
 #include<string>
 #include<unordered_map>
 #include<memory>
+#include"Effect.h"
 
 class Entity {
     protected:
@@ -12,10 +12,10 @@ class Entity {
         const int maxHP;
         std::string name;
         std::unordered_map<EffectType, Effect> effects;
-        const int maxDefense;
+        const int initialDefense;
         int defense;
 
-        Entity(std::string Name, int startX, int startY, int health, int MaxHP, int def);
+        Entity(std::string Name, int startX, int startY, int health, int MaxHP, int Defense);
         Entity();
     public:
         virtual ~Entity() = default;
@@ -34,7 +34,7 @@ class Entity {
         int HP() const;
         int MaxHP() const;
         int Defense() const;
-        int MaxDefense() const;
+        int Initial_Defense() const;
         bool isAlive() const;
         std::string Name() const;
         virtual char getSymbol() const = 0;
