@@ -1,4 +1,4 @@
 #include"Breakable.h"
 
-Breakable::Breakable() : 
-Tile(TileType::RESOURCE, false, true) {}
+Breakable::Breakable(ResourceType Type) : 
+Tile(TileType::RESOURCE, false, true), type(Type) {}
