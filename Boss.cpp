@@ -1,7 +1,7 @@
 #include"Boss.h"
 
-Boss::Boss(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage) : 
-Enemy(name, startX, startY, hp, MaxHP, def, std::move(drops), XP, damage) {}
+Boss::Boss(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage, int Regeneration_Factor) : 
+Enemy(name, startX, startY, hp, MaxHP, def, std::move(drops), XP, damage), regenerationFactor(Regeneration_Factor) {}
 
 char Boss::getSymbol() const { return 'B'; }
 
@@ -21,7 +21,8 @@ std::array<std::unique_ptr<Item>, 3> Boss::dropItem() {
 }
 
 void Boss::specialAttack(Entity& target) {
-    //special attack code
-    //for now:
     target.takeDamage(Damage());
+    if(hp < maxHP/2) {
+        hp += regenerationFactor;
+    }
 }
