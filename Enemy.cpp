@@ -1,7 +1,9 @@
 #include"Enemy.h"
 
-Enemy::Enemy(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage) : 
-Entity(name, startX, startY, hp, MaxHP, def), xp(XP), drops(std::move(drops)), dmg(damage) {}
+Enemy::Enemy(std::string Name, int startX, int startY, int HP, int MaxHP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage) : 
+Entity(Name, startX, startY, HP, MaxHP, Defense), xp(XP), drops(std::move(Drops)), damage(Damage), initialDamage(Damage) {}
+
+Enemy::Enemy() : Entity(), drops(), xp(0), damage(0), initialDamage(0) {}
 
 void Enemy::update(int x, int y) {
     //Will probably be used to implement player tracking AI
@@ -11,10 +13,9 @@ void Enemy::update(int x, int y) {
 }
 
 char Enemy::getSymbol() const { return 'E'; }
-int Enemy::Damage() const { return dmg; }
-int Enemy::Defense() const { return def; }
+int Enemy::Damage() const { return damage; }
+int Enemy::Initial_Damage() const { return initialDamage; }
 size_t Enemy::XP() const { return xp; }
-size_t Enemy::HP() const{return hp;}
 
 void Enemy::attack(Entity& target) { target.takeDamage(Damage()); }
 
@@ -35,9 +36,36 @@ std::array<std::unique_ptr<Item>, 3> Enemy::dropItem() {
 
 void Enemy::Effect_Action() {
     for(auto& [type, e] : effects) {
+        if(e.Can_Give() || e.Time() == 0) { continue; }
         e.Time()--;
         switch(type) {
             case EffectType::HEAL:
+                Healing(healingValue);
+                break;
+            case EffectType::POISON:
+                takeDamage(poisonDamage);
+                break;
+            case EffectType::STRENGTH:
+                if(damage == initialDamage) {
+                    damage += strengthValue;
+                }
+                break;
+            case EffectType::WEAKNESS:
+                if(damage == initialDamage) {
+                    if(damage - weaknessValue <= 0) { damage = 0; }
+                    else { damage -= weaknessValue; }
+                }
+                break;
+            case EffectType::RESISTANCE:
+                if(defense == initialDefense) {
+                    defense += resistanceValue;
+                }
+                break;
+            case EffectType::VULNERABLE:
+                if(defense == initialDefense) {
+                    if(defense - vulnerableDefense <= 0) { defense = 0; }
+                    else { defense -= vulnerableDefense; }
+                }
                 break;
         }
     }
