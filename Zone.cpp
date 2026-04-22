@@ -1,6 +1,4 @@
 #include"Zone.h"
-#include<random>
-#include<numeric>
 
 Zone::Zone(size_t length, size_t width, const std::vector<std::vector<std::unique_ptr<Tile>>>& Tiles, const std::vector<std::unique_ptr<Entity>>& Entities) : 
 zoneLength(length), zoneWidth(width), tiles(std::move(Tiles)), entities(std::move(Entities)), gen(rd()) {}
@@ -9,7 +7,7 @@ Zone::Zone(size_t length, size_t width) :
 zoneLength(length), zoneWidth(width), tiles(), entities(), gen(rd()) {}
 
 std::unique_ptr<Tile> Zone::getTile(int x, int y) {
-    if((x < 0 && y < 0) || (x > zoneLength && y > zoneWidth)) {
+    if((x < 0 || y < 0) || (x >= zoneLength || y >= zoneWidth)) {
         std::unique_ptr<Tile> RET = std::make_unique<Tile>(TileType::ZONE_BOUNDARY, false, false);
         return RET;
     }
@@ -37,6 +35,22 @@ bool Zone::EntityPresent(int x, int y) const {
         if(e->PosX() == x && e->posY() == y) { return true; }
     }
     return false;
+}
+
+bool Zone::isFilled(int x, int y) const {
+    if(x < 0 || x >= zoneLength || y < 0 || y >= zoneWidth) { return true; }
+    return (tiles[x][y]->Type() != TileType::GROUND);
+}
+
+void Zone::ZoneBoundary() {
+    for(int i = 0; i<zoneLength; i++) {
+        if(!isFilled(i, 0)) { tiles[i][0]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
+        if(!isFilled(i, zoneLength-1)) { tiles[i][zoneLength-1]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
+    }
+    for(int i = 0; i<zoneWidth; i++) {
+        if(!isFilled(0, i)) { tiles[0][i]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
+        if(!isFilled(zoneWidth-1, i)) { tiles[zoneWidth-1][i]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
+    }
 }
 
 void Zone::ResourcePopulate(int Resource_Amount, ResourceType Type) {
