@@ -1,6 +1,6 @@
 #include"Entity.h"
 
-Entity::Entity(std::string Name, int startX, int startY, size_t HP, size_t MaxHP, int def) : 
+Entity::Entity(std::string Name, int startX, int startY, int HP, int MaxHP, int def) : 
 name(Name), position(startX, startY), hp(HP), maxHP(MaxHP), def(def) {}
 
 Entity::Entity() : position(0, 0), name(), effects(), maxHP(0), hp(0) {}
@@ -19,7 +19,7 @@ void Entity::takeDamage(int dmg) {
     }
 }
 
-void Entity::Healing(size_t heal) {
+void Entity::Healing(int heal) {
     if(heal + HP() > MaxHP()) {
         hp = MaxHP();
     }
@@ -30,8 +30,8 @@ void Entity::Healing(size_t heal) {
 
 int Entity::PosX() const { return position.x; }
 int Entity::posY() const { return position.y; }
-size_t Entity::HP() const { return hp; }
-size_t Entity::MaxHP() const { return maxHP; }
+int Entity::HP() const { return hp; }
+int Entity::MaxHP() const { return maxHP; }
 std::string Entity::Name() const { return name; }
 bool Entity::isAlive() const { return (hp > 0); }
 void Entity::Effect_Add(Effect other) {
