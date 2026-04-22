@@ -7,7 +7,7 @@
 
 class Entity {
     protected:
-        Vector2<int> position;
+        Vector2 position;
         size_t hp;
         const size_t maxHP;
         std::string Name;
