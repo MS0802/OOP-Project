@@ -4,7 +4,14 @@ Zone::Zone(size_t length, size_t width, const std::vector<std::vector<std::uniqu
 zoneLength(length), zoneWidth(width), tiles(std::move(Tiles)), entities(std::move(Entities)), gen(rd()) {}
 
 Zone::Zone(size_t length, size_t width) : 
-zoneLength(length), zoneWidth(width), tiles(), entities(), gen(rd()) {}
+zoneLength(length), zoneWidth(width), tiles(length), entities(), gen(rd()) {
+    for(auto& row : tiles) {
+        row.resize(zoneWidth);
+        for(auto& tile : row) {
+            tile = std::make_unique<Tile>();
+        }
+    }
+}
 
 std::unique_ptr<Tile> Zone::getTile(int x, int y) {
     if((x < 0 || y < 0) || (x >= zoneLength || y >= zoneWidth)) {
