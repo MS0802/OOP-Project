@@ -11,11 +11,11 @@ void Entity::move(int pX, int pY) {
 }
 
 void Entity::takeDamage(int dmg) {
-    if(dmg > HP()) {
+    if((dmg - def) > HP()) {
         hp = 0;
     }
     else {
-        hp -= dmg;
+        hp -= (dmg - def);
     }
 }
 
