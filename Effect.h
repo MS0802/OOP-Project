@@ -11,21 +11,21 @@ constexpr int vulnerableDefense = 3;
 enum class EffectType {
     HEAL,
     POISON,
-    POISON_GIVE,
     STRENGTH,
     WEAKNESS,
-    WEAKNESS_GIVE,
     RESISTANCE,
-    VULNERABLE,
-    VULNERABLE_GIVE
+    VULNERABLE
 };
 
 class Effect {
     protected:
         EffectType type;
+        bool canGive;
         double time;
     public:
-        Effect(EffectType type, double time);
-        EffectType Effect_Give();
+        Effect(EffectType type, double time, bool Can_Give_Others);
+        Effect(const Effect& other);
+        EffectType Effect_Give() const;
         double& Time();
+        bool Can_Give() const;
 };
