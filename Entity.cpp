@@ -3,7 +3,11 @@
 Entity::Entity(std::string Name, int startX, int startY, int HP, int MaxHP, int def) : 
 name(Name), position(startX, startY), hp(HP), maxHP(MaxHP), defense(def), initialDefense(def) {}
 
-Entity::Entity() : position(0, 0), name(), effects(), maxHP(0), hp(0), defense(0), initialDefense(0) {}
+Entity::Entity() : 
+position(0, 0), name(), effects(), maxHP(0), hp(0), defense(0), initialDefense(0) {}
+
+Entity::Entity(const Entity& other) : 
+position(other.position), name(other.Name()), effects(other.effects), maxHP(other.MaxHP()), hp(other.HP()), defense(other.Defense()), initialDefense(other.Initial_Defense()) {}
 
 void Entity::move(int pX, int pY) {
     position.x += pX;
@@ -29,7 +33,7 @@ void Entity::Healing(int heal) {
 }
 
 int Entity::PosX() const { return position.x; }
-int Entity::posY() const { return position.y; }
+int Entity::PosY() const { return position.y; }
 int Entity::HP() const { return hp; }
 int Entity::MaxHP() const { return maxHP; }
 std::string Entity::Name() const { return name; }
