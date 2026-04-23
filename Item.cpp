@@ -6,6 +6,9 @@ name(itemName), type(type), id(ID), stackSize(StackSize) {}
 Item::Item(ItemType type) : 
 type(type), name(), id(), stackSize(0) {}
 
+Item::Item(const Item& other) : 
+type(other.Type()), name(other.Name()), id(other.ID()), stackSize(other.StackSize()) {}
+
 std::string Item::Name() const { return name; }
 std::string Item::ID() const { return id; }
 size_t Item::StackSize() const { return stackSize; }
