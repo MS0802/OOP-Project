@@ -17,6 +17,7 @@ class Entity {
 
         Entity(std::string Name, int startX, int startY, int health, int MaxHP, int Defense);
         Entity();
+        Entity(const Entity& other);
     public:
         virtual ~Entity() = default;
 
@@ -30,7 +31,7 @@ class Entity {
         virtual void Effect_Add(Effect other);
 
         int PosX() const;
-        int posY() const;
+        int PosY() const;
         int HP() const;
         int MaxHP() const;
         int Defense() const;
