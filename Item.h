@@ -20,6 +20,7 @@ class Item {
 
         Item(const std::string& itemName, ItemType type, std::string ID, const size_t& StackSize);
         Item(ItemType type);
+        Item(const Item& other);
     public:
         virtual ~Item() {}
         
