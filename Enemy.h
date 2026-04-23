@@ -14,6 +14,9 @@ class Enemy : public Entity {
     public:
         Enemy(std::string Name, int startX, int startY, int HP, int MaxHP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage);
         Enemy();
+        Enemy(const Enemy& other);
+        Enemy(std::string Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP, int Damage, const std::array<std::unique_ptr<Item>, 3>& Drops);
+
         void update(int x, int y) override;
         char getSymbol() const override;
 
