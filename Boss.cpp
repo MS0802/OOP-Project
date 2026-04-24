@@ -1,4 +1,5 @@
 #include"Boss.h"
+#include<algorithm>
 
 Boss::Boss(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage, int Regeneration_Factor) : 
 Enemy(name, startX, startY, hp, MaxHP, def, std::move(drops), XP, damage), regenerationFactor(Regeneration_Factor) {}
@@ -26,6 +27,6 @@ std::array<std::unique_ptr<Item>, 3> Boss::dropItem() {
 void Boss::specialAttack(Entity& target) {
     target.takeDamage(Damage());
     if(hp < maxHP/2) {
-        hp += regenerationFactor;
+        hp = std::min(hp + regenerationFactor, maxHP);
     }
 }
