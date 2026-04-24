@@ -25,6 +25,7 @@ class Effect {
     public:
         Effect(EffectType type, double time, bool Can_Give_Others);
         Effect(const Effect& other);
+        
         EffectType Effect_Give() const;
         double& Time();
         bool Can_Give() const;
