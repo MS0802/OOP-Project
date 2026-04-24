@@ -1,4 +1,5 @@
 #include"Entity.h"
+#include<algorithm>
 
 Entity::Entity(std::string Name, int startX, int startY, int HP, int MaxHP, int def) : 
 name(Name), position(startX, startY), hp(HP), maxHP(MaxHP), defense(def), initialDefense(def) {}
@@ -15,11 +16,12 @@ void Entity::move(int pX, int pY) {
 }
 
 void Entity::takeDamage(int dmg) {
-    if((dmg - defense) > HP()) {
+    int actualDamage = std::max(0, dmg - defense);
+    if(actualDamage >= hp) {
         hp = 0;
     }
     else {
-        hp -= (dmg - defense);
+        hp -= actualDamage;
     }
 }
 
