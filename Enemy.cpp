@@ -9,14 +9,18 @@ Entity(), drops(), xp(0), damage(0), initialDamage(0) {}
 Enemy::Enemy(const Enemy& other) : 
 Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.MaxHP(), other.Defense()), xp(other.XP()), damage(other.Damage()), initialDamage(other.Initial_Damage()), drops() {
     for(int i = 0; i<3; i++) {
-        drops[i] = std::make_unique<Item>(*other.drops[i]);
+        if(other.drops[i]) {
+            drops[i] = other.drops[i]->clone();
+        }
     }
 }
 
 Enemy::Enemy(std::string Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP, int Damage, const std::array<std::unique_ptr<Item>, 3>& Drops) : 
 Entity(Name, startX, startY, HP, MaxHP, Defense), xp(XP), damage(Damage), initialDamage(Damage), drops() {
     for(int i = 0; i<3; i++) {
-        drops[i] = std::make_unique<Item>(*Drops[i]);
+        if(Drops[i]) {
+            drops[i] = Drops[i]->clone();
+        }
     }
 }
 
