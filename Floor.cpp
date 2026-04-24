@@ -6,7 +6,7 @@ zones(Zones), floorNumber(FloorNumber), activeZone(std::move(ActiveZone)), numbe
 Floor::Floor(int FloorNumber, int MAX_Zones) : 
 floorNumber(FloorNumber), zones(), activeZone(nullptr), numberOfZones(MAX_Zones) {}
 
-std::unique_ptr<Zone>& Floor::ActiveZone() { return std::move(activeZone); }
+Zone* Floor::ActiveZone() { return activeZone.get(); }
 int Floor::FloorNumber() const { return floorNumber; }
 
 void Floor::AddZone(size_t ZoneLength, size_t ZoneWidth) {
