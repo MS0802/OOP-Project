@@ -23,7 +23,7 @@ class Zone{
         bool EntityPresent(int x, int y) const;
         bool isFilled(int x, int y) const;
     public:
-        Zone(size_t length, size_t width, const std::vector<std::vector<std::unique_ptr<Tile>>>& Tiles, const std::vector<std::unique_ptr<Entity>>& Entities);
+        Zone(size_t length, size_t width, std::vector<std::vector<std::unique_ptr<Tile>>> Tiles, std::vector<std::unique_ptr<Entity>> Entities);
 
         Zone(size_t length, size_t width);
 
