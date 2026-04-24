@@ -12,7 +12,7 @@ class Floor{
         Floor(const std::vector<Zone>& Zones, int FloorNumber, std::unique_ptr<Zone> ActiveZone);
         Floor(int FloorNumber, int MAX_Zones);
         
-        std::unique_ptr<Zone>& ActiveZone();
+        Zone* ActiveZone();
         int FloorNumber() const;
 
         void AddZone(size_t ZoneLength, size_t ZoneWidth);
