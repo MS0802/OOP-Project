@@ -1,6 +1,6 @@
 #include"Zone.h"
 
-Zone::Zone(size_t length, size_t width, const std::vector<std::vector<std::unique_ptr<Tile>>>& Tiles, const std::vector<std::unique_ptr<Entity>>& Entities) : 
+Zone::Zone(size_t length, size_t width, std::vector<std::vector<std::unique_ptr<Tile>>> Tiles, std::vector<std::unique_ptr<Entity>> Entities) : 
 zoneLength(length), zoneWidth(width), tiles(std::move(Tiles)), entities(std::move(Entities)), gen(rd()) {}
 
 Zone::Zone(size_t length, size_t width) : 
@@ -30,7 +30,7 @@ bool Zone::isIsolated(int x, int y) const {
         for(int j = -1; j<=1; ++j) {
             int nx = x + i;
             int ny = y + j;
-            if(nx < 0 || nx > zoneLength || ny < 0 || ny > zoneWidth) { return false; }
+            if(nx < 0 || nx >= zoneLength || ny < 0 || ny >= zoneWidth) { return false; }
             if(tiles[nx][ny]->Type() != TileType::GROUND) { return false; }
         }
     }
@@ -39,7 +39,7 @@ bool Zone::isIsolated(int x, int y) const {
 
 bool Zone::EntityPresent(int x, int y) const {
     for(const auto& e : entities) {
-        if(e->PosX() == x && e->posY() == y) { return true; }
+        if(e->PosX() == x && e->PosY() == y) { return true; }
     }
     return false;
 }
@@ -52,11 +52,11 @@ bool Zone::isFilled(int x, int y) const {
 void Zone::ZoneBoundary() {
     for(int i = 0; i<zoneLength; i++) {
         if(!isFilled(i, 0)) { tiles[i][0]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
-        if(!isFilled(i, zoneLength-1)) { tiles[i][zoneLength-1]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
+        if(!isFilled(i, zoneWidth-1)) { tiles[i][zoneWidth-1]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
     }
     for(int i = 0; i<zoneWidth; i++) {
         if(!isFilled(0, i)) { tiles[0][i]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
-        if(!isFilled(zoneWidth-1, i)) { tiles[zoneWidth-1][i]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
+        if(!isFilled(zoneLength-1, i)) { tiles[zoneLength-1][i]->ReplaceTile(Unbreakable(TileType::ZONE_BOUNDARY)); }
     }
 }
 
