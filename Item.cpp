@@ -16,3 +16,6 @@ ItemType Item::Type() const { return type; }
 
 ItemStack::ItemStack(std::unique_ptr<Item> item, size_t size) : 
 item(std::move(item)), size(size) {}
+
+ItemStack::ItemStack(const ItemStack& other) : 
+item(other.item ? other.item->clone() : nullptr), size(other.size) {}
