@@ -30,10 +30,12 @@ class Item {
         ItemType Type() const;
         
         virtual void use(Player& player) = 0;
+        virtual std::unique_ptr<Item> clone() const = 0;
 };
 
 struct ItemStack {
     std::unique_ptr<Item> item;
     size_t size;
     ItemStack(std::unique_ptr<Item> item, size_t size);
+    ItemStack(const ItemStack& other);
 };
