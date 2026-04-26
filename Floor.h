@@ -2,6 +2,8 @@
 #include"Zone.h"
 #include"Entrance.h"
 
+class World;
+
 class Floor{
     protected:
         int floorNumber;
@@ -17,4 +19,6 @@ class Floor{
 
         void AddZone(size_t ZoneLength, size_t ZoneWidth);
         void ZoneBoundary_andExits();
+
+        friend class World;
 };
