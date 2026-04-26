@@ -5,6 +5,12 @@
 class World {
     private:
         void InitializeFloor1();
+        void InitializeFloor2();
+        void InitializeFloor3();
+        void InitializeFloor4();
+        void InitializeFloor5();
+        void InitializeFloor6();
+        void InitializeFloor7();
     protected:
         std::vector<std::unique_ptr<Floor>> floors;
         const size_t totalFloors;
