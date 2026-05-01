@@ -38,7 +38,7 @@ class Zone{
 
         void ResourcePopulate(int Resource_Amount, ResourceType Type);
 
-        void EntityPopulate(int Entity_Amount, std::unique_ptr<Entity> entity);
+        void EntityPopulate(int Entity_Amount, Entity* entity);
 
         friend class Floor;
 };
