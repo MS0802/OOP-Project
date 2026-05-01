@@ -1,16 +1,16 @@
 #include"Utility.h"
 #include"Player.h"
 
-Utility::Utility(const std::string& ItemName, std::string ID, int stackSize, const std::vector<std::string>& canCraftIDs) : 
-Item(ItemName, ItemType::UTILITY, ID, stackSize), canCraftIDs(canCraftIDs) {}
+Utility::Utility(const std::string& ItemName, int stackSize, const std::vector<std::string>& CanCraft) : 
+Item(ItemName, ItemType::UTILITY, stackSize), canCraft(CanCraft) {}
 
-Utility::Utility(const std::string& ItemName, std::string ID, int stackSize) : 
-Item(ItemName, ItemType::UTILITY, ID, stackSize), canCraftIDs() {}
+Utility::Utility(const std::string& ItemName, int stackSize) : 
+Item(ItemName, ItemType::UTILITY, stackSize), canCraft() {}
 
 Utility::Utility(const Utility& other) : 
-Item(other), canCraftIDs(other.canCraftIDs) {}
+Item(other), canCraft(other.canCraft) {}
 
-Utility::Utility() : Item(ItemType::UTILITY), canCraftIDs() {}
+Utility::Utility() : Item(ItemType::UTILITY), canCraft() {}
 
 void Utility::use(Player& player) {
     //logic left
