@@ -7,15 +7,16 @@ class World;
 class Floor{
     protected:
         int floorNumber;
-        std::vector<Zone> zones;
-        std::unique_ptr<Zone> activeZone;
+        std::vector<std::unique_ptr<Zone>> zones;
+        Zone* activeZone;
         const int numberOfZones;
     public:
-        Floor(const std::vector<Zone>& Zones, int FloorNumber, std::unique_ptr<Zone> ActiveZone);
+        Floor(std::vector<std::unique_ptr<Zone>>& Zones, int FloorNumber, Zone* ActiveZone);
         Floor(int FloorNumber, int MAX_Zones);
         
         Zone* ActiveZone();
         int FloorNumber() const;
+        int Number_ofZones() const;
 
         void AddZone(size_t ZoneLength, size_t ZoneWidth);
         void ZoneBoundary_andExits();
