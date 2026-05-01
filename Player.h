@@ -12,7 +12,7 @@ class Player : public Entity {
         std::unique_ptr<Item> on_Hand;
         int xp;
     public:
-        Player(const std::string& Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP);
+        Player(const std::string& Name, int startX, int startY, int HP, int Defense, int XP);
         Player();
 
         void update(int pX, int pY) override;
