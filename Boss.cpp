@@ -1,11 +1,11 @@
 #include"Boss.h"
 #include<algorithm>
 
-Boss::Boss(std::string name, int startX, int startY, size_t hp, size_t MaxHP, int def, std::array<std::unique_ptr<Item>, 3> drops, size_t XP, int damage, int Regeneration_Factor) : 
-Enemy(name, startX, startY, hp, MaxHP, def, std::move(drops), XP, damage), regenerationFactor(Regeneration_Factor) {}
+Boss::Boss(std::string name, int startX, int startY, int hp, int def, std::array<std::unique_ptr<Item>, 3> drops, int XP, int damage, int Regeneration_Factor) : 
+Enemy(name, startX, startY, hp, def, std::move(drops), XP, damage), regenerationFactor(Regeneration_Factor) {}
 
 Boss::Boss(const Boss& other) : 
-Enemy(other.Name(), other.PosX(), other.PosY(), other.HP(), other.MaxHP(), other.Defense(), other.XP(), other.Damage(), other.drops), regenerationFactor(other.regenerationFactor) {}
+Enemy(other.Name(), other.PosX(), other.PosY(), other.HP(), other.Defense(), other.XP(), other.Damage(), other.drops), regenerationFactor(other.regenerationFactor) {}
 
 char Boss::getSymbol() const { return 'B'; }
 
