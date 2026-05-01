@@ -5,9 +5,10 @@
 class Tool : public Item {
     protected:
         double durability;
-        std::vector<std::string> canBreakIDs; // Store IDs instead of unique_ptrs
+        std::vector<std::string> canBreak; // Store Names instead of unique_ptrs
+        std::vector<ItemStack> recipe;
     public:
-        Tool(const std::string& itemName, std::string ID, int StackSize, double Durability, const std::vector<std::string>& CanBreakIDs);
+        Tool(const std::string& itemName, double Durability, const std::vector<std::string>& CanBreak, std::vector<ItemStack>& Recipie);
         Tool(const Tool& other);
         Tool();
         
