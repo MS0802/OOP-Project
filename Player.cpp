@@ -1,8 +1,8 @@
 #include"Player.h"
 #include"Weapon.h"
 
-Player::Player(const std::string& Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP) : 
-Entity(Name, startX, startY, HP, MaxHP, Defense), xp(XP), inventory(), on_Hand(nullptr) {}
+Player::Player(const std::string& Name, int startX, int startY, int HP, int Defense, int XP) : 
+Entity(Name, startX, startY, HP, Defense), xp(XP), inventory(), on_Hand(nullptr) {}
 
 Player::Player() : 
 Entity(), xp(0), inventory(), on_Hand(nullptr) {}
