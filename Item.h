@@ -15,17 +15,15 @@ class Item {
     protected:
         std::string name;
         ItemType type;
-        std::string id;
         const size_t stackSize;
 
-        Item(const std::string& itemName, ItemType type, std::string ID, const size_t& StackSize);
+        Item(const std::string& itemName, ItemType type, const size_t& StackSize);
         Item(ItemType type);
         Item(const Item& other);
     public:
         virtual ~Item() {}
         
         std::string Name() const; //will probably use in render for inventory display
-        std::string ID() const;
         size_t StackSize() const;
         ItemType Type() const;
         
@@ -38,4 +36,5 @@ struct ItemStack {
     size_t size;
     ItemStack(std::unique_ptr<Item> item, size_t size);
     ItemStack(const ItemStack& other);
+    void operator=(const ItemStack& other);
 };
