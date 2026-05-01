@@ -15,7 +15,7 @@ class Entity {
         const int initialDefense;
         int defense;
 
-        Entity(std::string Name, int startX, int startY, int health, int MaxHP, int Defense);
+        Entity(std::string Name, int startX, int startY, int health, int Defense);
         Entity();
         Entity(const Entity& other);
     public:
