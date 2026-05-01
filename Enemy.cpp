@@ -1,13 +1,13 @@
 #include"Enemy.h"
 
-Enemy::Enemy(std::string Name, int startX, int startY, int HP, int MaxHP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage) : 
-Entity(Name, startX, startY, HP, MaxHP, Defense), xp(XP), drops(std::move(Drops)), damage(Damage), initialDamage(Damage) {}
+Enemy::Enemy(std::string Name, int startX, int startY, int HP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage) : 
+Entity(Name, startX, startY, HP, Defense), xp(XP), drops(std::move(Drops)), damage(Damage), initialDamage(Damage) {}
 
 Enemy::Enemy() : 
 Entity(), drops(), xp(0), damage(0), initialDamage(0) {}
 
 Enemy::Enemy(const Enemy& other) : 
-Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.MaxHP(), other.Defense()), xp(other.XP()), damage(other.Damage()), initialDamage(other.Initial_Damage()), drops() {
+Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.Defense()), xp(other.XP()), damage(other.Damage()), initialDamage(other.Initial_Damage()), drops() {
     for(int i = 0; i<3; i++) {
         if(other.drops[i]) {
             drops[i] = other.drops[i]->clone();
@@ -15,8 +15,8 @@ Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.MaxHP(), othe
     }
 }
 
-Enemy::Enemy(std::string Name, int startX, int startY, int HP, int MaxHP, int Defense, int XP, int Damage, const std::array<std::unique_ptr<Item>, 3>& Drops) : 
-Entity(Name, startX, startY, HP, MaxHP, Defense), xp(XP), damage(Damage), initialDamage(Damage), drops() {
+Enemy::Enemy(std::string Name, int startX, int startY, int HP, int Defense, int XP, int Damage, const std::array<std::unique_ptr<Item>, 3>& Drops) : 
+Entity(Name, startX, startY, HP, Defense), xp(XP), damage(Damage), initialDamage(Damage), drops() {
     for(int i = 0; i<3; i++) {
         if(Drops[i]) {
             drops[i] = Drops[i]->clone();
