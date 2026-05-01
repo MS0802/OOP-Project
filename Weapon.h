@@ -6,9 +6,9 @@ class Weapon : public Item {
     protected:
         int damage;
         int durability;
-        std::vector<ItemStack> Recipe;
+        std::vector<ItemStack> recipe;
     public:
-        Weapon(const std::string& name, const std::string& id, int dmg, int durability, const std::vector<ItemStack>& Recipe);
+        Weapon(const std::string& name, int dmg, int durability, const std::vector<ItemStack>& Recipe);
         Weapon(const Weapon& other);
         Weapon();
 
