@@ -1,8 +1,8 @@
 #include"Entity.h"
 #include<algorithm>
 
-Entity::Entity(std::string Name, int startX, int startY, int HP, int MaxHP, int def) : 
-name(Name), position(startX, startY), hp(HP), maxHP(MaxHP), defense(def), initialDefense(def) {}
+Entity::Entity(std::string Name, int startX, int startY, int HP, int def) : 
+name(Name), position(startX, startY), hp(HP), maxHP(HP), defense(def), initialDefense(def) {}
 
 Entity::Entity() : 
 position(0, 0), name(), effects(), maxHP(0), hp(0), defense(0), initialDefense(0) {}
