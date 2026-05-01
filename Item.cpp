@@ -1,16 +1,15 @@
 #include"Item.h"
 
-Item::Item(const std::string& itemName, ItemType type, std::string ID, const size_t& StackSize) : 
-name(itemName), type(type), id(ID), stackSize(StackSize) {}
+Item::Item(const std::string& itemName, ItemType type, const size_t& StackSize) : 
+name(itemName), type(type), stackSize(StackSize) {}
 
 Item::Item(ItemType type) : 
-type(type), name(), id(), stackSize(0) {}
+type(type), name(), stackSize(0) {}
 
 Item::Item(const Item& other) : 
-type(other.Type()), name(other.Name()), id(other.ID()), stackSize(other.StackSize()) {}
+type(other.Type()), name(other.Name()), stackSize(other.StackSize()) {}
 
 std::string Item::Name() const { return name; }
-std::string Item::ID() const { return id; }
 size_t Item::StackSize() const { return stackSize; }
 ItemType Item::Type() const { return type; }
 
@@ -19,3 +18,8 @@ item(std::move(item)), size(size) {}
 
 ItemStack::ItemStack(const ItemStack& other) : 
 item(other.item ? other.item->clone() : nullptr), size(other.size) {}
+
+void ItemStack::operator=(const ItemStack& other) {
+    item = (other.item ? other.item->clone() : nullptr);
+    size = other.size;
+}
