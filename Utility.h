@@ -4,10 +4,10 @@
 
 class Utility : public Item {
     protected:
-        std::vector<std::string> canCraftIDs; // Store IDs instead of unique_ptrs
+        std::vector<std::string> canCraft; // Store Names instead of unique_ptrs
     public:
-        Utility(const std::string& ItemName, std::string ID, int stackSize, const std::vector<std::string>& canCraftIDs);
-        Utility(const std::string& ItemName, std::string ID, int stackSize);
+        Utility(const std::string& ItemName, int stackSize, const std::vector<std::string>& CanCraft);
+        Utility(const std::string& ItemName, int stackSize);
         Utility(const Utility& other);
         Utility();
 
