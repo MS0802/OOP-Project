@@ -76,7 +76,7 @@ void Zone::ResourcePopulate(int Resource_Amount, ResourceType Type) {
     }
 }
 
-void Zone::EntityPopulate(int Entity_Amount, std::unique_ptr<Entity> entity) {
+void Zone::EntityPopulate(int Entity_Amount, Entity* entity) {
     int spawned = 0;
     std::uniform_int_distribution<> distY(1, zoneWidth - 2);
     std::uniform_int_distribution<> distX(1, zoneLength - 2);
@@ -86,7 +86,7 @@ void Zone::EntityPopulate(int Entity_Amount, std::unique_ptr<Entity> entity) {
         int rx = distX(gen);
 
         if(tiles[rx][ry]->Type() == TileType::GROUND && (!EntityPresent(rx, ry))) {
-            entities.push_back(std::move(entity));
+            entities.push_back(std::make_unique<Entity>(entity));
             spawned++;
         }
     }
