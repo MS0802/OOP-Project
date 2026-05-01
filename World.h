@@ -1,6 +1,8 @@
 #pragma once
 #include"Floor.h"
 #include"Player.h"
+#include<fstream>
+#include<sstream>
 
 class World {
     private:
