@@ -26,15 +26,14 @@ class Entity {
         void takeDamage(int dmg);
         void Healing(int heal);
         virtual int Damage() const = 0;
-        virtual int Defense() const = 0;
-        virtual void Effect_Action() = 0;
+        int Defense() const;
+        virtual void Effect_Action(EffectType type) = 0;
         virtual void Effect_Add(Effect other);
 
         int PosX() const;
         int PosY() const;
         int HP() const;
         int MaxHP() const;
-        int Defense() const;
         int Initial_Defense() const;
         bool isAlive() const;
         std::string Name() const;
