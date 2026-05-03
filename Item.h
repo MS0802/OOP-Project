@@ -2,8 +2,6 @@
 #include<string>
 #include<memory>
 
-class Player;
-
 enum class ItemType {
     UTILITY,
     POTION,
@@ -23,18 +21,18 @@ class Item {
     public:
         virtual ~Item() {}
         
-        std::string Name() const; //will probably use in render for inventory display
+        std::string Name() const;
         size_t StackSize() const;
         ItemType Type() const;
         
-        virtual void use(Player& player) = 0;
         virtual std::unique_ptr<Item> clone() const = 0;
 };
 
 struct ItemStack {
     std::unique_ptr<Item> item;
-    size_t size;
-    ItemStack(std::unique_ptr<Item> item, size_t size);
+    size_t amount;
+    ItemStack(std::unique_ptr<Item> Item, size_t Amount);
     ItemStack(const ItemStack& other);
+    ItemStack();
     void operator=(const ItemStack& other);
 };
