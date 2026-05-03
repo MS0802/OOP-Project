@@ -1,5 +1,4 @@
 #include"Utility.h"
-#include"Player.h"
 
 Utility::Utility(const std::string& ItemName, int stackSize, const std::vector<std::string>& CanCraft) : 
 Item(ItemName, ItemType::UTILITY, stackSize), canCraft(CanCraft) {}
@@ -12,10 +11,31 @@ Item(other), canCraft(other.canCraft) {}
 
 Utility::Utility() : Item(ItemType::UTILITY), canCraft() {}
 
-void Utility::use(Player& player) {
-    //logic left
-}
-
 std::unique_ptr<Item> Utility::clone() const {
     return std::make_unique<Utility>(*this);
+}
+
+Utility Utility::Wood() {
+    std::vector<std::string> CanCraft({});
+    return Utility("Wood", 100, CanCraft);
+}
+
+Utility Utility::Stone() {
+    std::vector<std::string> CanCraft({});
+    return Utility("Stone", 100, CanCraft);
+}
+
+Utility Utility::Iron() {
+    std::vector<std::string> CanCraft({});
+    return Utility("Iron", 100, CanCraft);
+}
+
+Utility Utility::Titanium() {
+    std::vector<std::string> CanCraft({});
+    return Utility("Titanium", 100, CanCraft);
+}
+
+Utility Utility::Etherite() {
+    std::vector<std::string> CanCraft({});
+    return Utility("Etherite", 100, CanCraft);
 }
