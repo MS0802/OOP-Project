@@ -13,13 +13,15 @@ std::string Item::Name() const { return name; }
 size_t Item::StackSize() const { return stackSize; }
 ItemType Item::Type() const { return type; }
 
-ItemStack::ItemStack(std::unique_ptr<Item> item, size_t size) : 
-item(std::move(item)), size(size) {}
+ItemStack::ItemStack(std::unique_ptr<Item> Item, size_t Amount) : 
+item(std::move(Item)), amount(Amount) {}
 
 ItemStack::ItemStack(const ItemStack& other) : 
-item(other.item ? other.item->clone() : nullptr), size(other.size) {}
+item(other.item ? other.item->clone() : nullptr), amount(other.amount) {}
+
+ItemStack::ItemStack() : item(nullptr), amount(0) {}
 
 void ItemStack::operator=(const ItemStack& other) {
     item = (other.item ? other.item->clone() : nullptr);
-    size = other.size;
+    amount = other.amount;
 }
