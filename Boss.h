@@ -13,4 +13,11 @@ class Boss : public Enemy {
         void specialAttack(Entity& target);
 
         std::array<std::unique_ptr<Item>, 3> dropItem() override;
+        
+        // Clone method for creating copies
+        std::unique_ptr<Entity> clone() const override;
+        
+        // Static factory methods for boss types
+        static Boss PoisonousStoneGolem(int startX, int startY);
+        static Boss EtheriteProtector(int startX, int startY);
 };
