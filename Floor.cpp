@@ -1,4 +1,5 @@
 #include"Floor.h"
+#include<algorithm>
 
 Floor::Floor(std::vector<std::unique_ptr<Zone>>& Zones, int FloorNumber, Zone* ActiveZone) : 
 zones(std::move(Zones)), floorNumber(FloorNumber), activeZone(ActiveZone), numberOfZones(Zones.size()) {}
