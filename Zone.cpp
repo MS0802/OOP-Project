@@ -13,12 +13,11 @@ zoneLength(length), zoneWidth(width), tiles(length), entities(), gen(rd()) {
     }
 }
 
-std::unique_ptr<Tile> Zone::getTile(int x, int y) {
+Tile* Zone::getTile(int x, int y) {
     if((x < 0 || y < 0) || (x >= zoneLength || y >= zoneWidth)) {
-        std::unique_ptr<Tile> RET = std::make_unique<Tile>(TileType::ZONE_BOUNDARY, false, false);
-        return RET;
+        return nullptr;
     }
-    return std::move(tiles[x][y]);
+    return tiles[x][y].get();
 }
 
 int Zone::ZoneLength() const { return zoneLength; }
@@ -76,7 +75,7 @@ void Zone::ResourcePopulate(int Resource_Amount, ResourceType Type) {
     }
 }
 
-void Zone::EntityPopulate(int Entity_Amount, Entity* entity) {
+void Zone::EntityPopulate(int Entity_Amount, std::function<std::unique_ptr<Entity>(int, int)> entityFactory) {
     int spawned = 0;
     std::uniform_int_distribution<> distY(1, zoneWidth - 2);
     std::uniform_int_distribution<> distX(1, zoneLength - 2);
@@ -86,8 +85,138 @@ void Zone::EntityPopulate(int Entity_Amount, Entity* entity) {
         int rx = distX(gen);
 
         if(tiles[rx][ry]->Type() == TileType::GROUND && (!EntityPresent(rx, ry))) {
-            entities.push_back(std::make_unique<Entity>(entity));
-            spawned++;
+            std::unique_ptr<Entity> newEntity = entityFactory(rx, ry);
+            if(newEntity) {
+                entities.push_back(std::move(newEntity));
+                spawned++;
+            }
+        }
+    }
+}
+
+bool Zone::IsNearWall(int x, int y) const {
+    for(int ny = y-1; ny<=y+1; ny++) {
+        for(int nx = x-1; nx<=x+1; nx++) {
+            if(nx >= 0 && nx < ZoneLength() && ny >= 0 && ny < ZoneWidth()) {
+                if(tiles[nx][ny]->Type() == TileType::WALL) { return true; }
+            }
+        }
+    }
+    return false;
+}
+
+void Zone::ClearNearExit(int x, int y) {
+    int dy[] = {-1, 1, 0, 0};
+    int dx[] = {0, 0, -1, 1};
+    for(int i = 0; i < 4; i++) {
+        int nx = x + dx[i];
+        int ny = y + dy[i];
+        if(nx >= 1 && nx < ZoneLength()-1 && ny >= 1 && ny < ZoneWidth()-1) {
+            if(tiles[nx][ny]->Type() == TileType::WALL) {
+                tiles[nx][ny]->ReplaceTile(Tile());
+            }
+        }
+    }
+}
+
+void Zone::WallPopulate(int Number_of_Walls, TileType type) {
+    if(tiles.empty() || tiles[0].empty()) { return; }
+    
+    std::uniform_int_distribution<> distBool(0, 1);
+    std::uniform_int_distribution<> distSide(0, 3);
+    std::uniform_int_distribution<> distX(2, ZoneLength() - 3);
+    std::uniform_int_distribution<> distY(2, ZoneWidth() - 3);
+
+    for(int w = 0; w < Number_of_Walls; w++) {
+        int startX, startY;
+        int dx = 0, dy = 0;
+        int side = distSide(gen);
+
+        switch(side) {
+            case 0:
+                startX = distX(gen);
+                startY = 1;
+                dy = 1;
+                break;
+            case 1:
+                startX = distX(gen);
+                startY = ZoneWidth()-2;
+                dy = -1;
+                break;
+            case 2:
+                startX = 1;
+                startY = distY(gen);
+                dx = 1;
+                break;
+            case 3:
+                startX = ZoneLength()-2;
+                startY = distY(gen);
+                dx = -1;
+                break;
+        }
+
+        if(tiles[startX][startY]->Type() != TileType::GROUND || IsNearWall(startX, startY)) {
+            --w;
+            continue;
+        }
+
+        int maxLength = ((dx != 0) ? ZoneLength()-2 : ZoneWidth()-2);
+        int length = std::uniform_int_distribution<>(5, std::max(5, (int)(maxLength * 0.7)))(gen);
+        int doorIndex = std::uniform_int_distribution<>(1, length - 2)(gen);
+
+        bool crashed = false;
+        int currX = startX;
+        int currY = startY;
+
+        for(int i = 0; i<length; i++) {
+            int nx = startX + (i*dx);
+            int ny = startY + (i*dy);
+
+            if(nx <= 0 || nx >= ZoneLength()-1 || ny <= 0 || ny >= ZoneWidth()-1 || 
+            tiles[nx][ny]->Type() == TileType::WALL || tiles[nx][ny]->Type() == TileType::ZONE_BOUNDARY) {
+                crashed = true;
+                break;
+            }
+
+            if(i == doorIndex) {
+                tiles[nx][ny]->ReplaceTile(Tile());
+            }
+            else {
+                tiles[nx][ny]->ReplaceTile(Unbreakable(TileType::WALL));
+            }
+            currX = nx;
+            currY = ny;
+        }
+
+        if(!crashed) {
+            int turnDx = 0, turnDy = 0;
+            if (dx != 0) { turnDy = (distBool(gen) ? 1 : -1); }
+            else { turnDx = (distBool(gen) ? 1 : -1); }
+
+            int turnSteps = 0;
+            while(true) {
+                int nx = currX + turnDx;
+                int ny = currY + turnDy;
+
+                if (nx <= 0 || nx >= ZoneLength() - 1 || ny <= 0 || ny >= ZoneWidth() - 1 || 
+                tiles[nx][ny]->Type() == TileType::WALL || tiles[nx][ny]->Type() == TileType::ZONE_BOUNDARY) {
+                    break;
+                }
+                if(turnSteps > 0 && turnSteps%5 == 0) { tiles[nx][ny]->ReplaceTile(Tile()); }
+                else { tiles[nx][ny]->ReplaceTile(Unbreakable(TileType::WALL)); }
+                
+                currX = nx;
+                currY = ny;
+                turnSteps++;
+            }
+        }
+    }
+
+    for(int x = 0; x < ZoneLength(); x++) {
+        for(int y = 0; y < ZoneWidth(); y++) {
+            if(tiles[x][y]->Type() == TileType::ZONE_EXIT) {
+                ClearNearExit(x, y);
+            }
         }
     }
 }
