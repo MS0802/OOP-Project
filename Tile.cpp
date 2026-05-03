@@ -23,8 +23,6 @@ std::string Tile::Name() const {
             return std::string("Door");
         case TileType::ZONE_EXIT:
             return std::string("Zone Exit");
-        case TileType::SHOP_TILE:
-            return std::string("Shop");
         case TileType::ZONE_BOUNDARY:
             return std::string("Boundary");
     }
