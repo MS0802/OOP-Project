@@ -25,7 +25,17 @@ class Enemy : public Entity {
         int Initial_Damage() const;
         size_t XP() const;
 
-        void Effect_Action() override;
+        void Effect_Action(EffectType type) override;
 
         virtual std::array<std::unique_ptr<Item>, 3> dropItem();
+        
+        // Clone method for creating copies
+        virtual std::unique_ptr<Entity> clone() const;
+        
+        // Static factory methods for enemy types
+        static Enemy Normal(int startX, int startY);
+        static Enemy Tank(int startX, int startY);
+        static Enemy Poison(int startX, int startY);
+        static Enemy Healer(int startX, int startY);
+        static Enemy Wizard(int startX, int startY);
 };
