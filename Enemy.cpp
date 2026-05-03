@@ -1,4 +1,6 @@
 #include"Enemy.h"
+#include"Potion.h"
+#include"Utility.h"
 
 Enemy::Enemy(std::string Name, int startX, int startY, int HP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage) : 
 Entity(Name, startX, startY, HP, Defense), xp(XP), drops(std::move(Drops)), damage(Damage), initialDamage(Damage) {}
@@ -53,10 +55,22 @@ std::array<std::unique_ptr<Item>, 3> Enemy::dropItem() {
     return RET;
 }
 
-void Enemy::Effect_Action() {
-    for(auto& [type, e] : effects) {
-        if(e.Can_Give() || e.Time() == 0) { continue; }
+void Enemy::Effect_Action(EffectType Type) {
+    std::vector<EffectType> toRemove;
+    
+    for(auto& effectPair : effects) {
+        EffectType type = effectPair.first;
+        Effect& e = effectPair.second;
+        
+        if(e.Can_Give() || e.Time() == 0) { 
+            if(e.Time() == 0) {
+                toRemove.push_back(type);
+            }
+            continue; 
+        }
+        
         e.Time()--;
+        
         switch(type) {
             case EffectType::HEAL:
                 Healing(healingValue);
@@ -88,4 +102,67 @@ void Enemy::Effect_Action() {
                 break;
         }
     }
+    
+    // Remove expired effects
+    for(const auto& effectType : toRemove) {
+        effects.erase(effectType);
+    }
+}
+
+std::unique_ptr<Entity> Enemy::clone() const {
+    return std::make_unique<Enemy>(*this);
+}
+
+// Factory methods for enemy types
+Enemy Enemy::Normal(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Utility::Wood().clone();
+    drops[1] = Potion::SelfHealing().clone();
+    drops[2] = nullptr;
+    return Enemy("Normal Enemy", startX, startY, 50, 5, std::move(drops), 10, 10);
+}
+
+Enemy Enemy::Tank(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Utility::Stone().clone();
+    drops[1] = Potion::Resistance().clone();
+    drops[2] = nullptr;
+    return Enemy("Tank", startX, startY, 70, 15, std::move(drops), 15, 10);
+}
+
+Enemy Enemy::Poison(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Potion::Poison().clone();
+    drops[1] = Utility::Wood().clone();
+    drops[2] = nullptr;
+    
+    Enemy poisonEnemy("Poison Enemy", startX, startY, 40, 5, std::move(drops), 12, 2);
+    // Add permanent poison effect
+    poisonEnemy.Effect_Add(Effect(EffectType::POISON, 999999, true));
+    return poisonEnemy;
+}
+
+Enemy Enemy::Healer(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Potion::SelfHealing().clone();
+    drops[1] = Potion::InflictHealing().clone();
+    drops[2] = nullptr;
+    
+    Enemy healerEnemy("Healer", startX, startY, 40, 5, std::move(drops), 8, 0);
+    // Add permanent healing effect for others
+    healerEnemy.Effect_Add(Effect(EffectType::HEAL, 999999, true));
+    return healerEnemy;
+}
+
+Enemy Enemy::Wizard(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Potion::Weakness().clone();
+    drops[1] = Potion::Vulnerability().clone();
+    drops[2] = Utility::Iron().clone();
+    
+    Enemy wizardEnemy("Wizard", startX, startY, 40, 5, std::move(drops), 15, 5);
+    // Add permanent weakness and vulnerability effects
+    wizardEnemy.Effect_Add(Effect(EffectType::WEAKNESS, 999999, true));
+    wizardEnemy.Effect_Add(Effect(EffectType::VULNERABLE, 999999, true));
+    return wizardEnemy;
 }
