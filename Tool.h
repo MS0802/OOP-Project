@@ -2,16 +2,30 @@
 #include"Item.h"
 #include<vector>
 
+constexpr int DefaultToolHP = 5;
+
+class Breakable;
+
 class Tool : public Item {
     protected:
-        double durability;
-        std::vector<std::string> canBreak; // Store Names instead of unique_ptrs
+        int durability;
+        std::vector<ResourceType> canBreak;
         std::vector<ItemStack> recipe;
     public:
-        Tool(const std::string& itemName, double Durability, const std::vector<std::string>& CanBreak, std::vector<ItemStack>& Recipie);
+        Tool(const std::string& itemName, int Durability, const std::vector<ResourceType>& CanBreak, std::vector<ItemStack>& Recipie);
         Tool(const Tool& other);
         Tool();
         
-        void use(Player& player) override;
         std::unique_ptr<Item> clone() const override;
+
+        static Tool WoodenAxe();
+        static Tool WoodenPickaxe();
+        static Tool StoneAxe();
+        static Tool StonePickaxe();
+        static Tool IronAxe();
+        static Tool IronPickaxe();
+        static Tool TitaniumAxe();
+        static Tool TitaniumPickaxe();
+        static Tool EtheriteAxe();
+        static Tool EtheritePickaxe();
 };
