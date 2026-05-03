@@ -1,11 +1,13 @@
 #include"Boss.h"
+#include"Potion.h"
+#include"Utility.h"
 #include<algorithm>
 
 Boss::Boss(std::string name, int startX, int startY, int hp, int def, std::array<std::unique_ptr<Item>, 3> drops, int XP, int damage, int Regeneration_Factor) : 
 Enemy(name, startX, startY, hp, def, std::move(drops), XP, damage), regenerationFactor(Regeneration_Factor) {}
 
 Boss::Boss(const Boss& other) : 
-Enemy(other.Name(), other.PosX(), other.PosY(), other.HP(), other.Defense(), other.XP(), other.Damage(), other.drops), regenerationFactor(other.regenerationFactor) {}
+Enemy(other), regenerationFactor(other.regenerationFactor) {}
 
 char Boss::getSymbol() const { return 'B'; }
 
@@ -24,9 +26,41 @@ std::array<std::unique_ptr<Item>, 3> Boss::dropItem() {
     return RET;
 }
 
+std::unique_ptr<Entity> Boss::clone() const {
+    return std::make_unique<Boss>(*this);
+}
+
 void Boss::specialAttack(Entity& target) {
     target.takeDamage(Damage());
     if(hp < maxHP/2) {
         hp = std::min(hp + regenerationFactor, maxHP);
+        
+        // Apply special effects when below half HP
+        if(name == "Poisonous Stone Golem") {
+            target.Effect_Add(Effect(EffectType::POISON, 5, false));
+        }
+        else if(name == "Etherite Protector") {
+            target.Effect_Add(Effect(EffectType::WEAKNESS, 5, false));
+            target.Effect_Add(Effect(EffectType::POISON, 5, false));
+        }
     }
+}
+
+// Factory methods for boss types
+Boss Boss::PoisonousStoneGolem(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Utility::Stone().clone();
+    drops[1] = Utility::Stone().clone();
+    drops[2] = Potion::Resistance().clone();
+    
+    return Boss("Poisonous Stone Golem", startX, startY, 150, 25, std::move(drops), 100, 30, 10);
+}
+
+Boss Boss::EtheriteProtector(int startX, int startY) {
+    std::array<std::unique_ptr<Item>, 3> drops;
+    drops[0] = Utility::Etherite().clone();
+    drops[1] = Utility::Etherite().clone();
+    drops[2] = Potion::Strength().clone();
+    
+    return Boss("Etherite Protector", startX, startY, 150, 25, std::move(drops), 150, 30, 15);
 }
