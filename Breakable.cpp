@@ -1,15 +1,11 @@
 #include"Breakable.h"
-
-Breakable::Breakable(ResourceType Type) : 
-Tile(TileType::RESOURCE, false, true), type(Type) {}
-#include"Breakable.h"
 #include"Utility.h"
 #include"Weapon.h"
 #include"Tool.h"
 #include"Potion.h"
 
 Breakable::Breakable(ResourceType Type) : 
-Tile(TileType::RESOURCE, false, true), type(Type), rd(), gen(rd), drop() {
+Tile(TileType::RESOURCE, false, true), type(Type), rd(), gen(rd()), drop() {
     std::uniform_int_distribution<> dist(0,2);
     int amt = dist(gen);
     switch(type) {
