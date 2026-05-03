@@ -2,6 +2,8 @@
 #include<string>
 #include<memory>
 
+class Player;  // Forward declaration
+
 enum class ItemType {
     UTILITY,
     POTION,
@@ -25,6 +27,7 @@ class Item {
         size_t StackSize() const;
         ItemType Type() const;
         
+        virtual void use(Player& player) {}  // Default implementation does nothing
         virtual std::unique_ptr<Item> clone() const = 0;
 };
 
