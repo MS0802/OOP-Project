@@ -38,14 +38,19 @@ void Player::attack(Entity& target) {
     target.takeDamage(totalDamage);
 }
 
+bool Player::canAttack(const Entity& target) const {
+    int dx = std::abs(position.x - target.PosX());
+    int dy = std::abs(position.y - target.PosY());
+    int distance = std::max(dx, dy);
+    return distance <= PLAYER_ATTACK_RANGE;
+}
+
 void Player::useItem(int index) {
     if(index < 0 || index >= inventory.size()) {
-        std::cout << "Invalid inventory slot!" << std::endl;
         return;
     }
     
     if(inventory[index].item == nullptr) {
-        std::cout << "No item in that slot!" << std::endl;
         return;
     }
     
@@ -60,7 +65,6 @@ void Player::useItem(int index) {
                 if(inventory[index].amount <= 0) {
                     inventory.erase(inventory.begin() + index);
                 }
-                std::cout << "Used potion!" << std::endl;
             }
             break;
         }
@@ -69,25 +73,21 @@ void Player::useItem(int index) {
             equipItem(index);
             break;
         case ItemType::UTILITY:
-            std::cout << "Utility items cannot be used directly." << std::endl;
             break;
     }
 }
 
 void Player::equipItem(int index) {
     if(index < 0 || index >= inventory.size()) {
-        std::cout << "Invalid inventory slot!" << std::endl;
         return;
     }
     
     if(inventory[index].item == nullptr) {
-        std::cout << "No item in that slot!" << std::endl;
         return;
     }
     
     ItemType type = inventory[index].item->Type();
     if(type != ItemType::WEAPON && type != ItemType::TOOL) {
-        std::cout << "This item cannot be equipped!" << std::endl;
         return;
     }
     
@@ -103,32 +103,18 @@ void Player::equipItem(int index) {
             inventory.erase(inventory.begin() + index);
         }
     }
-    
-    std::cout << "Equipped " << on_Hand->Name() << "!" << std::endl;
 }
 
 void Player::dropItem(int index) {
     if(index < 0 || index >= inventory.size()) {
-        std::cout << "Invalid inventory slot!" << std::endl;
         return;
     }
     
-    std::cout << "Dropped " << inventory[index].item->Name() << " x" << inventory[index].amount << std::endl;
     inventory.erase(inventory.begin() + index);
 }
 
 void Player::displayInventory() const {
-    std::cout << "\n=== INVENTORY ===" << std::endl;
-    std::cout << "Currently equipped: " << (on_Hand ? on_Hand->Name() : "Nothing") << std::endl;
-    std::cout << "\nItems (" << inventory.size() << "/" << MAX_INVENTORY_SIZE << "):" << std::endl;
-    
-    for(int i = 0; i < inventory.size(); i++) {
-        if(inventory[i].item) {
-            std::cout << "[" << i << "] " << inventory[i].item->Name() 
-                     << " x" << inventory[i].amount << std::endl;
-        }
-    }
-    std::cout << "=================" << std::endl;
+    // Inventory display handled by game UI layer
 }
 
 Item* Player::getItemAt(int index) {
@@ -143,7 +129,6 @@ void Player::addItem(std::unique_ptr<Item> item, int amount) {
     
     // Check if inventory is full
     if(inventory.size() >= MAX_INVENTORY_SIZE) {
-        std::cout << "Inventory is full! Cannot add " << item->Name() << std::endl;
         return;
     }
     
@@ -218,3 +203,6 @@ void Player::Effect_Action(EffectType type) {
 int Player::XP() const { return xp; }
 int Player::InventorySize() const { return inventory.size(); }
 bool Player::isInventoryFull() const { return inventory.size() >= MAX_INVENTORY_SIZE; }
+
+const std::vector<ItemStack>& Player::getInventory() const { return inventory; }
+const Item* Player::getEquippedItem() const { return on_Hand.get(); }
