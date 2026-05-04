@@ -44,6 +44,10 @@ class Zone{
         void EntityPopulate(int Entity_Amount, std::function<std::unique_ptr<Entity>(int, int)> entityFactory);
 
         void WallPopulate(int Number_of_Walls, TileType type = TileType::GROUND);
+        
+        std::vector<std::unique_ptr<Entity>>& getEntities();
+        const std::vector<std::unique_ptr<Entity>>& getEntities() const;
+        void removeDeadEntities();
 
         friend class Floor;
 };
