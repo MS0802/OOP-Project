@@ -1,4 +1,5 @@
 #include"Zone.h"
+#include<algorithm>
 
 Zone::Zone(size_t length, size_t width, std::vector<std::vector<std::unique_ptr<Tile>>> Tiles, std::vector<std::unique_ptr<Entity>> Entities) : 
 zoneLength(length), zoneWidth(width), tiles(std::move(Tiles)), entities(std::move(Entities)), gen(rd()) {}
@@ -219,4 +220,20 @@ void Zone::WallPopulate(int Number_of_Walls, TileType type) {
             }
         }
     }
+}
+
+std::vector<std::unique_ptr<Entity>>& Zone::getEntities() {
+    return entities;
+}
+
+const std::vector<std::unique_ptr<Entity>>& Zone::getEntities() const {
+    return entities;
+}
+
+void Zone::removeDeadEntities() {
+    entities.erase(
+        std::remove_if(entities.begin(), entities.end(),
+            [](const std::unique_ptr<Entity>& e) { return !e->isAlive(); }),
+        entities.end()
+    );
 }
