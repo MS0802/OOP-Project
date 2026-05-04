@@ -6,6 +6,7 @@
 
 const int DefaultPlayerDamage = 1;
 const int MAX_INVENTORY_SIZE = 10;
+const int PLAYER_ATTACK_RANGE = 2;
 
 class Player : public Entity {
     private:
@@ -22,6 +23,7 @@ class Player : public Entity {
 
         int Damage() const override;
         void attack(Entity& target);
+        bool canAttack(const Entity& target) const;
         void useItem(int index);
         void addItem(std::unique_ptr<Item> item, int amount); //Takes ownership of items using move
         void equipItem(int index);
@@ -34,4 +36,7 @@ class Player : public Entity {
         int XP() const;
         int InventorySize() const;
         bool isInventoryFull() const;
+        
+        const std::vector<ItemStack>& getInventory() const;
+        const Item* getEquippedItem() const;
 };
