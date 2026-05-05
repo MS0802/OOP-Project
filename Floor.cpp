@@ -13,7 +13,7 @@ int Floor::Number_ofZones() const { return numberOfZones; }
 
 void Floor::AddZone(size_t ZoneLength, size_t ZoneWidth) {
     if(zones.size() < numberOfZones) {
-        zones.push_back(std::make_unique<Zone>(Zone(ZoneLength, ZoneWidth)));
+        zones.push_back(std::make_unique<Zone>(ZoneLength, ZoneWidth));
     }
 }
 
