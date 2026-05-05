@@ -4,7 +4,7 @@
 #include<algorithm>
 
 Boss::Boss(std::string name, int startX, int startY, int hp, int def, std::array<std::unique_ptr<Item>, 3> drops, int XP, int damage, int Regeneration_Factor) : 
-Enemy(name, startX, startY, hp, def, std::move(drops), XP, damage), regenerationFactor(Regeneration_Factor) {}
+Enemy(name, startX, startY, hp, def, std::move(drops), XP, damage, EnemyType::NORMAL), regenerationFactor(Regeneration_Factor) {}
 
 Boss::Boss(const Boss& other) : 
 Enemy(other), regenerationFactor(other.regenerationFactor) {}
