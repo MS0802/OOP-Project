@@ -4,6 +4,9 @@
 
 constexpr int DefaultToolHP = 5;
 
+// Forward declaration
+enum class ResourceType;
+
 class Breakable;
 
 class Tool : public Item {
