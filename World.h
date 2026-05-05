@@ -14,8 +14,9 @@ class World {
     protected:
         std::vector<std::unique_ptr<Floor>> floors;
         const size_t totalFloors;
-        Floor* activeFloor;
     public:
+        Floor* activeFloor;
+        
         World();
 
         void InitializeFloors();
