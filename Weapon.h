@@ -20,6 +20,7 @@ class Weapon : public Item {
 
         std::unique_ptr<Item> clone() const override;
         int Damage() const;
+        std::vector<ItemStack> Recipe() const;
 
         static Weapon WoodenSword();
         static Weapon WoodenSpear();
