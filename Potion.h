@@ -2,6 +2,8 @@
 #include"Item.h"
 #include"Effect.h"
 
+class Entity;  // Forward declaration
+
 class Potion : public Item {
     protected:
         Effect potionEffect;
@@ -10,6 +12,7 @@ class Potion : public Item {
         Potion(EffectType type);
 
         void use(Player& player) override;
+        void use(Entity* e);
         std::unique_ptr<Item> clone() const override;
 
         static Potion SelfHealing();
@@ -19,4 +22,8 @@ class Potion : public Item {
         static Potion Weakness();
         static Potion Resistance();
         static Potion Vulnerability();
+
+        bool operator==(const Potion& other) {
+            return (potionEffect.Can_Give() == other.potionEffect.Can_Give() && potionEffect.Effect_Give() == other.potionEffect.Effect_Give());
+        }
 };
