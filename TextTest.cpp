@@ -4,18 +4,32 @@
 #include<limits>
 
 void printControls() {
-    std::cout << "\n=== Controls ===" << std::endl;
-    std::cout << "w/a/s/d - Move up/left/down/right" << std::endl;
-    std::cout << "k - Attack nearest enemy" << std::endl;
-    std::cout << "b - Break adjacent resource" << std::endl;
-    std::cout << "i - Show inventory" << std::endl;
-    std::cout << "u [index] - Use item" << std::endl;
-    std::cout << "e [index] - Equip item" << std::endl;
-    std::cout << "r [index] - Drop item" << std::endl;
-    std::cout << "p - Show player stats" << std::endl;
-    std::cout << "h - Show controls" << std::endl;
-    std::cout << "q - Quit" << std::endl;
-    std::cout << "================" << std::endl;
+    std::cout << "\n________________________________________" << std::endl;
+    std::cout << "|           CONTROLS MENU              |" << std::endl;
+    std::cout << "|--------------------------------------|" << std::endl;
+    std::cout << "| MOVEMENT                             |" << std::endl;
+    std::cout << "| w - Move up      | a - Move left     |" << std::endl;
+    std::cout << "| s - Move down    | d - Move right    |" << std::endl;
+    std::cout << "|                                      |" << std::endl;
+    std::cout << "| COMBAT                               |" << std::endl;
+    std::cout << "| k - Attack nearest enemy             |" << std::endl;
+    std::cout << "| t [index] - Throw potion at enemy    |" << std::endl;
+    std::cout << "|                                      |" << std::endl;
+    std::cout << "| RESOURCES                            |" << std::endl;
+    std::cout << "| b - Break adjacent resource          |" << std::endl;
+    std::cout << "| c - Craft tools/weapons              |" << std::endl;
+    std::cout << "|                                      |" << std::endl;
+    std::cout << "| INVENTORY                            |" << std::endl;
+    std::cout << "| i - Show inventory                   |" << std::endl;
+    std::cout << "| u [index] - Use/Drink item           |" << std::endl;
+    std::cout << "| e [index] - Equip weapon/tool        |" << std::endl;
+    std::cout << "| r [index] - Drop item                |" << std::endl;
+    std::cout << "|                                      |" << std::endl;
+    std::cout << "| INFO                                 |" << std::endl;
+    std::cout << "| p - Show player stats                |" << std::endl;
+    std::cout << "| h - Show this help                   |" << std::endl;
+    std::cout << "| q - Quit game                        |" << std::endl;
+    std::cout << "________________________________________" << std::endl;
 }
 
 int main() {
@@ -28,11 +42,12 @@ int main() {
     
     bool running = true;
     std::string input;
+    bool showZone = true;
     
     while(running) {
-        // Display current zone
-        game.displayZone();
-        game.displayPlayerStats();
+        if(showZone) {
+            game.displayZone();
+        }
         
         std::cout << "\nEnter command: ";
         std::getline(std::cin, input);
@@ -84,6 +99,15 @@ int main() {
                     itemIndex = input[2] - '0';
                 }
                 break;
+            case 'c':
+                action = GameAction::CRAFT;
+                break;
+            case 't':
+                action = GameAction::THROW_POTION;
+                if(input.length() > 2) {
+                    itemIndex = input[2] - '0';
+                }
+                break;
             case 'p':
                 game.displayPlayerStats();
                 continue;
@@ -99,8 +123,21 @@ int main() {
                 continue;
         }
         
-        // Execute action and update game (1 tick)
+        // Execute action and update game (1 tick for non-inventory actions)
         game.tick(action, itemIndex);
+        
+        // Determine whether next loop should redraw the board
+        switch(action) {
+            case GameAction::OPEN_INVENTORY:
+            case GameAction::USE_ITEM:
+            case GameAction::EQUIP_ITEM:
+            case GameAction::DROP_ITEM:
+                showZone = false;
+                break;
+            default:
+                showZone = true;
+                break;
+        }
         
         // Check if player is dead
         if(!game.getPlayer()->isAlive()) {
