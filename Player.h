@@ -24,7 +24,8 @@ class Player : public Entity {
         int Damage() const override;
         void attack(Entity& target);
         bool canAttack(const Entity& target) const;
-        void useItem(int index);
+        void useItem(int index, int amt = 0);
+        void useItem(Entity* target, int index);
         void addItem(std::unique_ptr<Item> item, int amount); //Takes ownership of items using move
         void equipItem(int index);
         void dropItem(int index);
