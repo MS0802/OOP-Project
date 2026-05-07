@@ -1,32 +1,50 @@
 #include"Game.h"
 #include"Enemy.h"
 #include"Boss.h"
+#include"Tool.h"
+#include"Weapon.h"
 #include<iostream>
 #include<iomanip>
+#include<algorithm>
+#include<limits>
 
 Game::Game() : 
 world(std::make_unique<World>()), 
 player(std::make_unique<Player>("Hero", 5, 5, 100, 10, 0)),
 currentZone(nullptr),
-currentFloor(1) {}
+currentFloor(1),
+enemyUpdateCounter(0),
+playerActionCounter(0) {}
 
 void Game::initialize() {
     world->InitializeFloors();
     world->SetActiveFloor(1);
-    currentZone = world->activeFloor->ActiveZone();
+    if(world->activeFloor) {
+        currentZone = world->activeFloor->ActiveZone();
+        currentFloor = world->activeFloor->FloorNumber();
+    }
     
     // Place player at center of starting zone
-    Vector2 center = currentZone->Center();
-    player->move(center.x - player->PosX(), center.y - player->PosY());
+    if(currentZone) {
+        Vector2 center = currentZone->Center();
+        player->move(center.x - player->PosX(), center.y - player->PosY());
+    }
 }
 
 bool Game::canMoveTo(int x, int y) const {
+    return canMoveTo(x, y, nullptr);
+}
+
+bool Game::canMoveTo(int x, int y, const Entity* ignoreEntity) const {
     Tile* tile = currentZone->getTile(x, y);
     if(!tile) return false;
     if(!tile->Walkable()) return false;
     
-    // Check for entity collision
+    // Check for entity collision, ignoring one entity if requested
     for(const auto& entity : currentZone->getEntities()) {
+        if(ignoreEntity && entity.get() == ignoreEntity) {
+            continue;
+        }
         if(entity->PosX() == x && entity->PosY() == y) {
             return false;
         }
@@ -41,7 +59,22 @@ void Game::checkCollisions(int newX, int newY) {
     
     // Check if stepping on zone exit
     if(tile->Type() == TileType::ZONE_EXIT) {
-        // TODO: Handle zone transition
+        if(world->activeFloor && world->activeFloor->NextZone()) {
+            currentZone = world->activeFloor->ActiveZone();
+            Vector2 center = currentZone->Center();
+            player->move(center.x - player->PosX(), center.y - player->PosY());
+            std::cout << "You move into the next zone." << std::endl;
+        } else if(world->NextFloor()) {
+            currentFloor = world->activeFloor->FloorNumber();
+            currentZone = world->activeFloor->ActiveZone();
+            if(currentZone) {
+                Vector2 center = currentZone->Center();
+                player->move(center.x - player->PosX(), center.y - player->PosY());
+            }
+            std::cout << "You descend to floor " << currentFloor << "." << std::endl;
+        } else {
+            std::cout << "You have reached the final floor." << std::endl;
+        }
     }
 }
 
@@ -50,36 +83,265 @@ void Game::updateEnemies() {
         // Check if it's an enemy
         Enemy* enemy = dynamic_cast<Enemy*>(entity.get());
         if(enemy && enemy->isAlive()) {
-            // Store old position
+            // Determine intended AI move
+            auto move = enemy->calculateAIMove(*player, currentZone->getEntities());
             int oldX = enemy->PosX();
             int oldY = enemy->PosY();
-            
-            // Update AI
-            enemy->updateAI(*player);
-            
-            // Check if new position is valid
-            int newX = enemy->PosX();
-            int newY = enemy->PosY();
-            
-            if(!canMoveTo(newX, newY)) {
-                // Revert move
+
+            auto attemptMove = [&](int moveX, int moveY) {
+                enemy->update(moveX, moveY);
+                int newX = enemy->PosX();
+                int newY = enemy->PosY();
+                if(canMoveTo(newX, newY, enemy)) {
+                    return true;
+                }
                 enemy->move(oldX - newX, oldY - newY);
-            } else {
-                // Check if enemy is adjacent to player for attack
-                int dx = std::abs(player->PosX() - newX);
-                int dy = std::abs(player->PosY() - newY);
-                if(dx <= 1 && dy <= 1 && (dx + dy > 0)) {
-                    enemy->attack(*player);
+                return false;
+            };
+
+            bool moved = attemptMove(move.first, move.second);
+            if(!moved && (move.first != 0 || move.second != 0)) {
+                std::vector<std::pair<int,int>> alternatives;
+                for(int dx = -1; dx <= 1; dx++) {
+                    for(int dy = -1; dy <= 1; dy++) {
+                        if(dx == 0 && dy == 0) continue;
+                        alternatives.emplace_back(dx, dy);
+                    }
+                }
+
+                std::sort(alternatives.begin(), alternatives.end(), [&](const auto& a, const auto& b) {
+                    int scoreA = a.first * move.first + a.second * move.second;
+                    int scoreB = b.first * move.first + b.second * move.second;
+                    return scoreA > scoreB;
+                });
+
+                for(const auto& alt : alternatives) {
+                    if(alt == move) continue;
+                    if(attemptMove(alt.first, alt.second)) {
+                        moved = true;
+                        break;
+                    }
                 }
             }
-            
+
+            int newX = enemy->PosX();
+            int newY = enemy->PosY();
+            int dx = std::abs(player->PosX() - newX);
+            int dy = std::abs(player->PosY() - newY);
+            if(dx <= 1 && dy <= 1 && (dx + dy > 0)) {
+                enemy->attack(*player);
+                if(enemy->Type() == EnemyType::WIZARD) {
+                    enemy->MarkAttackedPlayer();
+                }
+            }
+
             // Apply effects
             enemy->Effect_Action(EffectType::HEAL);
         }
     }
-    
+
     // Remove dead enemies
     currentZone->removeDeadEntities();
+}
+
+Entity* Game::targetEnemy() {
+    Vector2 playerPos(player->PosX(), player->PosY());
+    Entity* closestEnemy = nullptr;
+    int minDist = 999;
+    for(auto& entity : currentZone->getEntities()) {
+        Enemy* enemy = dynamic_cast<Enemy*>(entity.get());
+        if(enemy && enemy->isAlive()) {
+            Vector2 enemyPos(enemy->PosX(), enemy->PosY());
+            int dist = std::max(std::abs(playerPos.x - enemyPos.x), std::abs(playerPos.y - enemyPos.y));
+            if(dist < minDist) {
+                minDist = dist;
+                closestEnemy = enemy;
+            }
+        }
+    }
+    return closestEnemy;
+}
+
+void Game::craft() {
+    int craftIdx;
+    std::cout<<"What do you wish to craft?\n"
+    <<"01. Wooden Pickaxe\n"
+    <<"02. Wooden Axe\n"
+    <<"03. Wooden Sword\n"
+    <<"04. Wooden Spear\n"
+    <<"05. Stone Pickaxe\n"
+    <<"06. Stone Axe\n"
+    <<"07. Stone Sword\n"
+    <<"08. Stone Spear\n"
+    <<"09. Iron Pickaxe\n"
+    <<"10. Iron Axe\n"
+    <<"11. Iron Sword\n"
+    <<"12. Iron Spear\n"
+    <<"13. Titanium Pickaxe\n"
+    <<"14. Titanium Axe\n"
+    <<"15. Titanium Sword\n"
+    <<"16. Titanium Spear\n"
+    <<"17. Etherite Pickaxe\n"
+    <<"18. Etherite Axe\n"
+    <<"19. Etherite Sword\n"
+    <<"20. Etherite Spear\n"
+    <<"Choice: ";
+    if(!(std::cin >> craftIdx)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid input. Crafting canceled." << std::endl;
+        return;
+    }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::unique_ptr<Item> crafting_item;
+
+    switch(craftIdx) {
+        case 1:
+            crafting_item = std::make_unique<Tool>(Tool::WoodenPickaxe());
+            break;
+        case 2:
+            crafting_item = std::make_unique<Tool>(Tool::WoodenAxe());
+            break;
+        case 3:
+            crafting_item = std::make_unique<Weapon>(Weapon::WoodenSword());
+            break;
+        case 4:
+            crafting_item = std::make_unique<Weapon>(Weapon::WoodenSpear());
+            break;
+        case 5:
+            crafting_item = std::make_unique<Tool>(Tool::StonePickaxe());
+            break;
+        case 6:
+            crafting_item = std::make_unique<Tool>(Tool::StoneAxe());
+            break;
+        case 7:
+            crafting_item = std::make_unique<Weapon>(Weapon::StoneSword());
+            break;
+        case 8:
+            crafting_item = std::make_unique<Weapon>(Weapon::StoneSpear());
+            break;
+        case 9:
+            crafting_item = std::make_unique<Tool>(Tool::IronPickaxe());
+            break;
+        case 10:
+            crafting_item = std::make_unique<Tool>(Tool::IronAxe());
+            break;
+        case 11:
+            crafting_item = std::make_unique<Weapon>(Weapon::IronSword());
+            break;
+        case 12:
+            crafting_item = std::make_unique<Weapon>(Weapon::IronSpear());
+            break;
+        case 13:
+            crafting_item = std::make_unique<Tool>(Tool::TitaniumPickaxe());
+            break;
+        case 14:
+            crafting_item = std::make_unique<Tool>(Tool::TitaniumAxe());
+            break;
+        case 15:
+            crafting_item = std::make_unique<Weapon>(Weapon::TitaniumSword());
+            break;
+        case 16:
+            crafting_item = std::make_unique<Weapon>(Weapon::TitaniumSpear());
+            break;
+        case 17:
+            crafting_item = std::make_unique<Tool>(Tool::EtheritePickaxe());
+            break;
+        case 18:
+            crafting_item = std::make_unique<Tool>(Tool::EtheriteAxe());
+            break;
+        case 19:
+            crafting_item = std::make_unique<Weapon>(Weapon::EtheriteSword());
+            break;
+        case 20:
+            crafting_item = std::make_unique<Weapon>(Weapon::EtheriteSpear());
+            break;
+        default:
+            std::cout << "Invalid craft selection." << std::endl;
+            return;
+    }
+
+    std::vector<ItemStack> recipe;
+    if(auto toolptr = dynamic_cast<Tool*>(crafting_item.get())) {
+        recipe = toolptr->Recipe();
+    } else if(auto weaponptr = dynamic_cast<Weapon*>(crafting_item.get())) {
+        recipe = weaponptr->Recipe();
+    } else {
+        std::cout << "Unable to craft this item." << std::endl;
+        return;
+    }
+
+    if(recipe.empty()) {
+        player->addItem(crafting_item->clone(), 1);
+        std::cout << crafting_item->Name() << " crafted." << std::endl;
+        return;
+    }
+
+    std::vector<int> tempAmounts(player->getInventory().size());
+    for(int i = 0; i < player->getInventory().size(); i++) {
+        tempAmounts[i] = static_cast<int>(player->getInventory()[i].amount);
+    }
+
+    std::vector<std::pair<int, int>> ingredient_slots;
+    for(const auto& ingredient : recipe) {
+        int needed = static_cast<int>(ingredient.amount);
+        for(int i = 0; i < player->getInventory().size() && needed > 0; i++) {
+            const auto& invItem = player->getInventory()[i];
+            if(!invItem.item || invItem.item->Name() != ingredient.item->Name()) {
+                continue;
+            }
+
+            int take = std::min(needed, tempAmounts[i]);
+            if(take <= 0) {
+                continue;
+            }
+
+            tempAmounts[i] -= take;
+            needed -= take;
+
+            bool merged = false;
+            for(auto& slotAmount : ingredient_slots) {
+                if(slotAmount.first == i) {
+                    slotAmount.second += take;
+                    merged = true;
+                    break;
+                }
+            }
+            if(!merged) {
+                ingredient_slots.emplace_back(i, take);
+            }
+        }
+
+        if(needed > 0) {
+            std::cout << "Missing required ingredients for " << crafting_item->Name() << "." << std::endl;
+            return;
+        }
+    }
+
+    std::sort(ingredient_slots.begin(), ingredient_slots.end(), [](const auto& a, const auto& b) {
+        return a.first > b.first;
+    });
+
+    for(const auto& slotAmount : ingredient_slots) {
+        player->useItem(slotAmount.first, slotAmount.second);
+    }
+
+    player->addItem(crafting_item->clone(), 1);
+    std::cout << crafting_item->Name() << " crafted." << std::endl;
+}
+
+void Game::throwPotion(int itemIndex) {
+    if(itemIndex < 0 || itemIndex >= player->InventorySize()) {
+        return;
+    }
+    
+    Item* item = player->getItemAt(itemIndex);
+    if(!item || item->Type() != ItemType::POTION) {
+        return;
+    }
+    
+    player->useItem(targetEnemy(), itemIndex);
 }
 
 void Game::tick(GameAction action, int itemIndex) {
@@ -101,7 +363,7 @@ void Game::tick(GameAction action, int itemIndex) {
         case GameAction::ATTACK: {
             // Find enemies in range and attack closest
             Entity* target = nullptr;
-            int minDist = 999;
+            int minDist = PLAYER_ATTACK_RANGE + 1;
             for(auto& entity : currentZone->getEntities()) {
                 int dx = std::abs(player->PosX() - entity->PosX());
                 int dy = std::abs(player->PosY() - entity->PosY());
@@ -119,15 +381,72 @@ void Game::tick(GameAction action, int itemIndex) {
         case GameAction::BREAK_RESOURCE: {
             // Check adjacent tiles for breakable resources
             int dirs[4][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+            bool broke_something = false;
+            bool found_breakable = false;
+            const Item* equipped = player->getEquippedItem();
+            const Tool* tool = nullptr;
+            if(equipped && equipped->Type() == ItemType::TOOL) {
+                tool = dynamic_cast<const Tool*>(equipped);
+            }
+
             for(int i = 0; i < 4; i++) {
                 int checkX = player->PosX() + dirs[i][0];
                 int checkY = player->PosY() + dirs[i][1];
                 Tile* tile = currentZone->getTile(checkX, checkY);
                 if(tile && tile->Breakable()) {
-                    // TODO: Break resource and add to inventory
-                    // For now just replace with ground
-                    tile->ReplaceTile(Tile());
+                    Breakable* resource = dynamic_cast<Breakable*>(tile);
+                    if(resource) {
+                        found_breakable = true;
+                        ResourceType resType = resource->Type();
+                        bool canBreak = false;
+
+                        if(tool == nullptr) {
+                            if(resType == ResourceType::BARREL0) {
+                                canBreak = true;
+                            }
+                        } else {
+                            for(const auto& allowed : tool->CanBreak()) {
+                                if(allowed == resType) {
+                                    canBreak = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(!canBreak) {
+                            continue;
+                        }
+
+                        // Get the drop and add to inventory
+                        ItemStack& drop = resource->Drop();
+                        if(drop.item && drop.amount > 0) {
+                            player->addItem(std::move(drop.item), drop.amount);
+                            std::cout << "Collected resource!" << std::endl;
+                        }
+                        // Replace with ground
+                        tile->ReplaceTile(Tile());
+                        broke_something = true;
+                        break;
+                    }
                 }
+            }
+
+            if(!broke_something) {
+                if(found_breakable && tool == nullptr) {
+                    std::cout << "You need a tool equipped to break that resource." << std::endl;
+                } else if(found_breakable) {
+                    std::cout << "Your equipped tool cannot break any adjacent resource." << std::endl;
+                } else {
+                    std::cout << "No breakable resource nearby!" << std::endl;
+                }
+                return; // Don't count as a tick
+            }
+
+            playerActionCounter++;
+            if(playerActionCounter >= 5) {
+                playerActionCounter = 0;
+                player->Healing(5);
+                std::cout << "You feel a surge of vitality!" << std::endl;
             }
             break;
         }
@@ -135,20 +454,27 @@ void Game::tick(GameAction action, int itemIndex) {
             if(itemIndex >= 0) {
                 player->useItem(itemIndex);
             }
-            break;
+            displayPlayerStats();
+            return; // Inventory actions do not count as a tick
         case GameAction::EQUIP_ITEM:
             if(itemIndex >= 0) {
                 player->equipItem(itemIndex);
             }
-            break;
+            return; // Inventory actions do not count as a tick
         case GameAction::DROP_ITEM:
             if(itemIndex >= 0) {
                 player->dropItem(itemIndex);
             }
-            break;
+            return; // Inventory actions do not count as a tick
         case GameAction::OPEN_INVENTORY:
             displayInventory();
             return; // Don't update game state
+        case GameAction::CRAFT:
+            craft();
+            return; // Crafting handles its own updates
+        case GameAction::THROW_POTION:
+            throwPotion(itemIndex);
+            break;
         case GameAction::NONE:
             return; // No action, no tick
     }
@@ -160,12 +486,21 @@ void Game::tick(GameAction action, int itemIndex) {
         
         if(canMoveTo(newX, newY)) {
             player->update(moveX, moveY);
+            playerActionCounter++;
+            if(playerActionCounter >= 5) {
+                playerActionCounter = 0;
+                player->Healing(5);
+                std::cout << "You feel a surge of vitality!" << std::endl;
+            }
             checkCollisions(newX, newY);
         }
     }
     
-    // Update enemies
-    updateEnemies();
+    // Update enemies every 2 ticks
+    enemyUpdateCounter++;
+    if (enemyUpdateCounter % 2 == 0) {
+        updateEnemies();
+    }
     
     // Apply player effects
     player->Effect_Action(EffectType::HEAL);
@@ -174,10 +509,13 @@ void Game::tick(GameAction action, int itemIndex) {
 void Game::displayZone() const {
     if(!currentZone) return;
     
-    std::cout << "\n=== Zone Display ===" << std::endl;
+    std::cout << "\n_";
+    for(int x = 0; x < currentZone->ZoneWidth(); x++) std::cout << "_";
+    std::cout << "_" << std::endl;
     
-    for(int y = 0; y < currentZone->ZoneWidth(); y++) {
-        for(int x = 0; x < currentZone->ZoneLength(); x++) {
+    for(int y = 0; y < currentZone->ZoneLength(); y++) {
+        std::cout << "|";
+        for(int x = 0; x < currentZone->ZoneWidth(); x++) {
             // Check if player is here
             if(player->PosX() == x && player->PosY() == y) {
                 std::cout << 'P';
@@ -200,28 +538,56 @@ void Game::displayZone() const {
             if(tile) {
                 switch(tile->Type()) {
                     case TileType::GROUND:
-                        std::cout << '.';
+                        std::cout << ' ';
                         break;
                     case TileType::WALL:
-                        std::cout << '#';
+                        std::cout << 'w';
                         break;
                     case TileType::ZONE_BOUNDARY:
-                        std::cout << '=';
+                        std::cout << '#';
                         break;
                     case TileType::ZONE_EXIT:
-                        std::cout << 'X';
+                        std::cout << 'E';
                         break;
-                    case TileType::RESOURCE:
-                        std::cout << 'R';
+                    case TileType::RESOURCE: {
+                        Breakable* resource = dynamic_cast<Breakable*>(tile);
+                        if(resource) {
+                            switch(resource->Type()) {
+                                case ResourceType::TREE:
+                                    std::cout << 'T';
+                                    break;
+                                case ResourceType::STONE:
+                                    std::cout << 'S';
+                                    break;
+                                case ResourceType::IRON:
+                                    std::cout << 'I';
+                                    break;
+                                case ResourceType::TITANIUM:
+                                    std::cout << 'T';
+                                    break;
+                                case ResourceType::BARREL0:
+                                case ResourceType::BARREL1:
+                                case ResourceType::BARREL2:
+                                case ResourceType::BARREL3:
+                                case ResourceType::BARREL4:
+                                case ResourceType::BARREL5:
+                                    std::cout << 'B';
+                                    break;
+                            }
+                        } else {
+                            std::cout << 'R';
+                        }
                         break;
-                    default:
-                        std::cout << '?';
+                    }
                 }
             }
         }
-        std::cout << std::endl;
+        std::cout << "|" << std::endl;
     }
-    std::cout << "===================" << std::endl;
+    
+    std::cout << "_";
+    for(int x = 0; x < currentZone->ZoneWidth(); x++) std::cout << "_";
+    std::cout << "_" << std::endl;
 }
 
 void Game::displayInventory() const {
