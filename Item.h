@@ -2,7 +2,7 @@
 #include<string>
 #include<memory>
 
-class Player;  // Forward declaration
+class Player;
 
 enum class ItemType {
     UTILITY,
