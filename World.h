@@ -21,4 +21,6 @@ class World {
 
         void InitializeFloors();
         void SetActiveFloor(size_t FloorNumber);
+        bool NextFloor();
+        int TotalFloors() const;
 };
