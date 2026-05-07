@@ -2,12 +2,46 @@
 #include"Potion.h"
 #include"Utility.h"
 #include<algorithm>
+#include<cmath>
 
 Boss::Boss(std::string name, int startX, int startY, int hp, int def, std::array<std::unique_ptr<Item>, 3> drops, int XP, int damage, int Regeneration_Factor) : 
 Enemy(name, startX, startY, hp, def, std::move(drops), XP, damage, EnemyType::NORMAL), regenerationFactor(Regeneration_Factor) {}
 
 Boss::Boss(const Boss& other) : 
 Enemy(other), regenerationFactor(other.regenerationFactor) {}
+
+std::pair<int,int> Boss::calculateAIMove(const Entity& player, const std::vector<std::unique_ptr<Entity>>& zoneEntities) const {
+    int dx = player.PosX() - position.x;
+    int dy = player.PosY() - position.y;
+    int playerDistance = std::max(std::abs(dx), std::abs(dy));
+
+    // Stop moving if player is 2 blocks away or closer
+    if(playerDistance <= 2) {
+        return {0, 0};
+    }
+
+    auto sign = [](int value) {
+        return (value > 0) - (value < 0);
+    };
+
+    int moveX = 0;
+    int moveY = 0;
+
+    if(dx != 0 || dy != 0) {
+        if(std::abs(dx) > std::abs(dy)) {
+            moveX = sign(dx);
+        } else {
+            moveY = sign(dy);
+        }
+    }
+
+    return {moveX, moveY};
+}
+
+void Boss::updateAI(const Entity& player, const std::vector<std::unique_ptr<Entity>>& zoneEntities) {
+    auto move = calculateAIMove(player, zoneEntities);
+    update(move.first, move.second);
+}
 
 char Boss::getSymbol() const { return 'B'; }
 
