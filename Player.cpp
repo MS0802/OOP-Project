@@ -45,7 +45,7 @@ bool Player::canAttack(const Entity& target) const {
     return distance <= PLAYER_ATTACK_RANGE;
 }
 
-void Player::useItem(int index) {
+void Player::useItem(int index, int amt) {
     if(index < 0 || index >= inventory.size()) {
         return;
     }
@@ -73,7 +73,36 @@ void Player::useItem(int index) {
             equipItem(index);
             break;
         case ItemType::UTILITY:
+            if(amt) {
+                if(amt < inventory[index].amount) {
+                    inventory[index].amount -= amt;
+                }
+                else if (amt == inventory[index].amount) {
+                    inventory.erase(inventory.begin() + index);
+                }
+            }
             break;
+    }
+}
+
+void Player::useItem(Entity* target, int index) {
+    if(index < 0 || index >= inventory.size()) {
+        return;
+    }
+    
+    if(inventory[index].item == nullptr) {
+        return;
+    }
+    
+    if(inventory[index].item->Type() == ItemType::POTION) {
+        Potion* potion = dynamic_cast<Potion*>(inventory[index].item.get());
+        if(potion) {
+            potion->use(target);
+            inventory[index].amount--;
+            if(inventory[index].amount <= 0) {
+                inventory.erase(inventory.begin() + index);
+            }
+        }
     }
 }
 
@@ -114,7 +143,12 @@ void Player::dropItem(int index) {
 }
 
 void Player::displayInventory() const {
-    // Inventory display handled by game UI layer
+    for(size_t i = 0; i < inventory.size(); i++) {
+        if(inventory[i].item) {
+            std::cout << "[" << i << "] " << inventory[i].item->Name() 
+                     << " x" << inventory[i].amount << std::endl;
+        }
+    }
 }
 
 Item* Player::getItemAt(int index) {
