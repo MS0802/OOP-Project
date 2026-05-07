@@ -15,6 +15,8 @@ enum class GameAction {
     EQUIP_ITEM,
     DROP_ITEM,
     OPEN_INVENTORY,
+    CRAFT,
+    THROW_POTION,
     NONE
 };
 
@@ -24,10 +26,16 @@ class Game {
         std::unique_ptr<Player> player;
         Zone* currentZone;
         int currentFloor;
+        int enemyUpdateCounter;
+        int playerActionCounter;
         
+        Entity* targetEnemy();
         void updateEnemies();
+        void craft();
+        void throwPotion(int itemIndex);
         void checkCollisions(int newX, int newY);
         bool canMoveTo(int x, int y) const;
+        bool canMoveTo(int x, int y, const Entity* ignoreEntity) const;
         
     public:
         Game();
