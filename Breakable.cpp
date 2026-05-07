@@ -101,3 +101,6 @@ Tile(TileType::RESOURCE, false, true), type(Type), rd(), gen(rd()), drop() {
             break;
     }
 }
+
+ResourceType Breakable::Type() const { return type; }
+ItemStack& Breakable::Drop() { return drop; }
