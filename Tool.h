@@ -4,7 +4,6 @@
 
 constexpr int DefaultToolHP = 5;
 
-// Forward declaration
 enum class ResourceType;
 
 class Breakable;
@@ -20,6 +19,9 @@ class Tool : public Item {
         Tool();
         
         std::unique_ptr<Item> clone() const override;
+
+        std::vector<ItemStack> Recipe() const;
+        std::vector<ResourceType> CanBreak() const;
 
         static Tool WoodenAxe();
         static Tool WoodenPickaxe();
