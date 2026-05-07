@@ -1,15 +1,18 @@
 #include"Enemy.h"
+#include"Boss.h"
 #include"Potion.h"
 #include"Utility.h"
+#include<cmath>
+#include<climits>
 
 Enemy::Enemy(std::string Name, int startX, int startY, int HP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage, EnemyType type) : 
-Entity(Name, startX, startY, HP, Defense), xp(XP), drops(std::move(Drops)), damage(Damage), initialDamage(Damage), enemyType(type), tickCounter(0) {}
+Entity(Name, startX, startY, HP, Defense), xp(XP), drops(std::move(Drops)), damage(Damage), initialDamage(Damage), enemyType(type), hasAttackedPlayer(false) {}
 
 Enemy::Enemy() : 
-Entity(), drops(), xp(0), damage(0), initialDamage(0), enemyType(EnemyType::NORMAL), tickCounter(0) {}
+Entity(), drops(), xp(0), damage(0), initialDamage(0), enemyType(EnemyType::NORMAL), hasAttackedPlayer(false) {}
 
 Enemy::Enemy(const Enemy& other) : 
-Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.Defense()), xp(other.XP()), damage(other.Damage()), initialDamage(other.Initial_Damage()), enemyType(other.Type()), tickCounter(0), drops() {
+Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.Defense()), xp(other.XP()), damage(other.Damage()), initialDamage(other.Initial_Damage()), enemyType(other.Type()), hasAttackedPlayer(other.hasAttackedPlayer), drops() {
     for(int i = 0; i<3; i++) {
         if(other.drops[i]) {
             drops[i] = other.drops[i]->clone();
@@ -18,7 +21,7 @@ Entity(other.Name(), other.PosX(), other.PosY(), other.HP(), other.Defense()), x
 }
 
 Enemy::Enemy(std::string Name, int startX, int startY, int HP, int Defense, int XP, int Damage, const std::array<std::unique_ptr<Item>, 3>& Drops, EnemyType type) : 
-Entity(Name, startX, startY, HP, Defense), xp(XP), damage(Damage), initialDamage(Damage), enemyType(type), tickCounter(0), drops() {
+Entity(Name, startX, startY, HP, Defense), xp(XP), damage(Damage), initialDamage(Damage), enemyType(type), hasAttackedPlayer(false), drops() {
     for(int i = 0; i<3; i++) {
         if(Drops[i]) {
             drops[i] = Drops[i]->clone();
@@ -31,62 +34,127 @@ void Enemy::update(int x, int y) {
     position.y += y;
 }
 
-void Enemy::updateAI(const Entity& player) {
-    tickCounter++;
-    
+std::pair<int,int> Enemy::calculateAIMove(const Entity& player, const std::vector<std::unique_ptr<Entity>>& zoneEntities) const {
+    auto isPlayerNear = [&]() {
+        int dx = player.PosX() - position.x;
+        int dy = player.PosY() - position.y;
+        int dist = std::max(std::abs(dx), std::abs(dy));
+        return dist <= 5;
+    };
+
     int dx = player.PosX() - position.x;
     int dy = player.PosY() - position.y;
-    int absDx = std::abs(dx);
-    int absDy = std::abs(dy);
-    
-    int moveX = 0, moveY = 0;
-    
-    switch(enemyType) {
+    int playerDistance = std::max(std::abs(dx), std::abs(dy));
+
+    // Stop moving if player is right next to enemy
+    if(playerDistance <= 1) {
+        return {0, 0};
+    }
+
+    auto chooseClosestAlly = [&]() -> const Entity* {
+        const Entity* bestBoss = nullptr;
+        const Entity* bestEnemy = nullptr;
+        int bestBossDist = INT_MAX;
+        int bestEnemyDist = INT_MAX;
+
+        for(const auto& entity : zoneEntities) {
+            if(entity.get() == this) {
+                continue;
+            }
+            if(!entity) {
+                continue;
+            }
+
+            const Boss* boss = dynamic_cast<const Boss*>(entity.get());
+            const Enemy* otherEnemy = dynamic_cast<const Enemy*>(entity.get());
+            if(boss) {
+                int dist = std::max(std::abs(position.x - boss->PosX()), std::abs(position.y - boss->PosY()));
+                if(dist < bestBossDist) {
+                    bestBossDist = dist;
+                    bestBoss = boss;
+                }
+            } else if(otherEnemy) {
+                int dist = std::max(std::abs(position.x - otherEnemy->PosX()), std::abs(position.y - otherEnemy->PosY()));
+                if(dist < bestEnemyDist) {
+                    bestEnemyDist = dist;
+                    bestEnemy = otherEnemy;
+                }
+            }
+        }
+
+        return bestBoss ? bestBoss : bestEnemy;
+    };
+
+    if (!isPlayerNear()) {
+        // Move randomly
+        static std::mt19937 rng(std::random_device{}());
+        std::uniform_int_distribution<int> dist(-1, 1);
+        int moveX, moveY;
+        do {
+            moveX = dist(rng);
+            moveY = dist(rng);
+        } while (moveX == 0 && moveY == 0);
+        return {moveX, moveY};
+    }
+
+    // Player is near, approach or special behavior
+    int moveX = 0;
+    int moveY = 0;
+
+    auto sign = [](int value) {
+        return (value > 0) - (value < 0);
+    };
+
+    switch (enemyType) {
         case EnemyType::NORMAL:
         case EnemyType::TANK:
         case EnemyType::POISON:
-            // Move towards player (aggressive)
-            if(absDx > absDy) {
-                moveX = (dx > 0) ? 1 : -1;
-            } else if(absDy > 0) {
-                moveY = (dy > 0) ? 1 : -1;
+        case EnemyType::WIZARD:
+            if (std::abs(dx) > std::abs(dy)) {
+                moveX = sign(dx);
+            } else if (std::abs(dy) > 0) {
+                moveY = sign(dy);
             }
             break;
-            
-        case EnemyType::HEALER:
-            // Move away from player (slow - every 2 ticks)
-            if(tickCounter % 2 == 0) {
-                if(absDx < 5 || absDy < 5) {
-                    if(absDx > absDy) {
-                        moveX = (dx > 0) ? -1 : 1;
-                    } else if(absDy > 0) {
-                        moveY = (dy > 0) ? -1 : 1;
+
+        case EnemyType::HEALER: {
+            const Entity* ally = chooseClosestAlly();
+            if (ally) {
+                int playerDist = std::max(std::abs(dx), std::abs(dy));
+                if (playerDist <= 3) {
+                    moveX = -sign(dx);
+                    moveY = -sign(dy);
+                } else {
+                    int adx = ally->PosX() - position.x;
+                    int ady = ally->PosY() - position.y;
+                    if (std::abs(adx) > std::abs(ady)) {
+                        moveX = sign(adx);
+                    } else if (std::abs(ady) > 0) {
+                        moveY = sign(ady);
                     }
                 }
+            } else {
+                moveX = -sign(dx);
+                moveY = -sign(dy);
             }
             break;
-            
-        case EnemyType::WIZARD:
-            // Hit once then run away
-            if(absDx <= 1 && absDy <= 1) {
-                // Too close, run away
-                if(absDx > absDy) {
-                    moveX = (dx > 0) ? -1 : 1;
-                } else {
-                    moveY = (dy > 0) ? -1 : 1;
-                }
-            } else if(absDx <= 3 && absDy <= 3) {
-                // In range for effect, move to attack
-                if(absDx > absDy) {
-                    moveX = (dx > 0) ? 1 : -1;
-                } else {
-                    moveY = (dy > 0) ? 1 : -1;
-                }
-            }
-            break;
+        }
     }
-    
-    update(moveX, moveY);
+
+    return {moveX, moveY};
+}
+
+void Enemy::updateAI(const Entity& player, const std::vector<std::unique_ptr<Entity>>& zoneEntities) {
+    auto move = calculateAIMove(player, zoneEntities);
+    update(move.first, move.second);
+}
+
+bool Enemy::HasAttackedPlayer() const {
+    return hasAttackedPlayer;
+}
+
+void Enemy::MarkAttackedPlayer() {
+    hasAttackedPlayer = true;
 }
 
 char Enemy::getSymbol() const { return 'E'; }
@@ -176,7 +244,7 @@ Enemy Enemy::Normal(int startX, int startY) {
     drops[0] = Utility::Wood().clone();
     drops[1] = Potion::SelfHealing().clone();
     drops[2] = nullptr;
-    return Enemy("Normal Enemy", startX, startY, 50, 5, std::move(drops), 10, 10, EnemyType::NORMAL);
+    return Enemy("Normal Enemy", startX, startY, 50, 5, std::move(drops), 10, 15, EnemyType::NORMAL);
 }
 
 Enemy Enemy::Tank(int startX, int startY) {
@@ -184,7 +252,7 @@ Enemy Enemy::Tank(int startX, int startY) {
     drops[0] = Utility::Stone().clone();
     drops[1] = Potion::Resistance().clone();
     drops[2] = nullptr;
-    return Enemy("Tank", startX, startY, 70, 15, std::move(drops), 15, 10, EnemyType::TANK);
+    return Enemy("Tank", startX, startY, 70, 15, std::move(drops), 15, 20, EnemyType::TANK);
 }
 
 Enemy Enemy::Poison(int startX, int startY) {
@@ -217,7 +285,7 @@ Enemy Enemy::Wizard(int startX, int startY) {
     drops[1] = Potion::Vulnerability().clone();
     drops[2] = Utility::Iron().clone();
     
-    Enemy wizardEnemy("Wizard", startX, startY, 40, 5, std::move(drops), 15, 5, EnemyType::WIZARD);
+    Enemy wizardEnemy("Wizard", startX, startY, 40, 5, std::move(drops), 15, 11, EnemyType::WIZARD);
     // Add permanent weakness and vulnerability effects
     wizardEnemy.Effect_Add(Effect(EffectType::WEAKNESS, 999999, true));
     wizardEnemy.Effect_Add(Effect(EffectType::VULNERABLE, 999999, true));
