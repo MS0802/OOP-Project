@@ -4,6 +4,8 @@
 #include<memory>
 #include<array>
 #include<random>
+#include<vector>
+#include<utility>
 
 enum class EnemyType {
     NORMAL,
@@ -20,7 +22,7 @@ class Enemy : public Entity {
         int damage;
         const int initialDamage;
         EnemyType enemyType;
-        int tickCounter;
+        bool hasAttackedPlayer;
     public:
         Enemy(std::string Name, int startX, int startY, int HP, int Defense, std::array<std::unique_ptr<Item>, 3> Drops, int XP, int Damage, EnemyType type);
         Enemy();
@@ -28,7 +30,10 @@ class Enemy : public Entity {
         Enemy(std::string Name, int startX, int startY, int HP, int Defense, int XP, int Damage, const std::array<std::unique_ptr<Item>, 3>& Drops, EnemyType type);
 
         void update(int x, int y) override;
-        void updateAI(const Entity& player);
+        virtual void updateAI(const Entity& player, const std::vector<std::unique_ptr<Entity>>& zoneEntities);
+        virtual std::pair<int,int> calculateAIMove(const Entity& player, const std::vector<std::unique_ptr<Entity>>& zoneEntities) const;
+        bool HasAttackedPlayer() const;
+        void MarkAttackedPlayer();
         char getSymbol() const override;
 
         void attack(Entity& target);
