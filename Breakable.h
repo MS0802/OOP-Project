@@ -24,4 +24,6 @@ class Breakable : public Tile {
         ItemStack drop;
     public:
         Breakable(ResourceType Type);
+        ResourceType Type() const;
+        ItemStack& Drop();
 };
