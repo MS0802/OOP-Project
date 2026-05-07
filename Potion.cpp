@@ -1,5 +1,6 @@
 #include"Potion.h"
 #include"Player.h"
+#include"Entity.h"
 
 Potion::Potion(const std::string& name, EffectType effectType, double duration, bool canGiveOthers) : 
 Item(name, ItemType::POTION, 1), potionEffect(effectType, duration, canGiveOthers) {}
@@ -9,6 +10,10 @@ Item(ItemType::POTION), potionEffect(type, 0, false) {}
 
 void Potion::use(Player& player) {
     player.Effect_Add(potionEffect);
+}
+
+void Potion::use(Entity* e) {
+    e->Effect_Add(potionEffect);
 }
 
 std::unique_ptr<Item> Potion::clone() const {
