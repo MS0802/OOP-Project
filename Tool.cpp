@@ -137,7 +137,7 @@ Tool Tool::EtheriteAxe() {
         ResourceType::BARREL4,
         ResourceType::BARREL5
     });
-    return Tool("Etherite Axe", DefaultToolHP*6, CanBreak, Recipe);
+    return Tool("Etherite Axe", DefaultToolHP*50, CanBreak, Recipe);
 }
 
 Tool Tool::EtheritePickaxe() {
@@ -150,7 +150,7 @@ Tool Tool::EtheritePickaxe() {
         ResourceType::IRON,
         ResourceType::TITANIUM
     });
-    return Tool("Etherite Pickaxe", DefaultToolHP*6, CanBreak, Recipe);
+    return Tool("Etherite Pickaxe", DefaultToolHP*50, CanBreak, Recipe);
 }
 
 std::vector<ItemStack> Tool::Recipe() const { return recipe; }
