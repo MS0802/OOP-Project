@@ -84,7 +84,7 @@ void Boss::specialAttack(Entity& target) {
 Boss Boss::PoisonousStoneGolem(int startX, int startY) {
     std::array<std::unique_ptr<Item>, 3> drops;
     drops[0] = Utility::Stone().clone();
-    drops[1] = Utility::Stone().clone();
+    drops[1] = Potion::Poison().clone();
     drops[2] = Potion::Resistance().clone();
     
     return Boss("Poisonous Stone Golem", startX, startY, 150, 25, std::move(drops), 100, 30, 10);
@@ -97,4 +97,18 @@ Boss Boss::EtheriteProtector(int startX, int startY) {
     drops[2] = Potion::Strength().clone();
     
     return Boss("Etherite Protector", startX, startY, 150, 25, std::move(drops), 150, 30, 15);
+}
+
+std::ostream& operator<<(std::ostream& os, const Boss& boss) {
+    os << boss.Name() << " (HP: " << boss.HP() << "/" << boss.MaxHP() << ", Damage: " << boss.Damage() << ", Defense: " << boss.Defense() <<")" <<std::endl
+    << "Effects: ";
+    if(boss.effects.empty()) {
+        os << "None";
+    } 
+    else {
+        for(const auto& [type, effect] : boss.effects) {
+            os << effect << "\n";
+        }
+    }
+    return os;
 }
