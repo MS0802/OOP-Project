@@ -1,6 +1,7 @@
 #pragma once
 #include"Enemy.h"
 #include<vector>
+#include<iostream>
 
 class Boss : public Enemy {
     protected:
@@ -25,4 +26,6 @@ class Boss : public Enemy {
         // Static factory methods for boss types
         static Boss PoisonousStoneGolem(int startX, int startY);
         static Boss EtheriteProtector(int startX, int startY);
+
+        friend std::ostream& operator<<(std::ostream& os, const Boss& boss);
 };
