@@ -37,6 +37,7 @@ class Player : public Entity {
         int XP() const;
         int InventorySize() const;
         bool isInventoryFull() const;
+        std::unordered_map<EffectType, Effect> Effects() const;
         
         const std::vector<ItemStack>& getInventory() const;
         const Item* getEquippedItem() const;
