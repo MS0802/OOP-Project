@@ -28,17 +28,66 @@ void printControls() {
     std::cout << "| INFO                                 |" << std::endl;
     std::cout << "| p - Show player stats                |" << std::endl;
     std::cout << "| h - Show this help                   |" << std::endl;
+    std::cout << "| m - Tile legend                      |" << std::endl;
     std::cout << "| q - Quit game                        |" << std::endl;
     std::cout << "________________________________________" << std::endl;
 }
 
+void printTiles() {
+    std::cout << "\nTILE LEGEND:" << std::endl;
+    std::cout << "P - Player" << std::endl;
+    std::cout << "E - Enemy" << std::endl;
+    std::cout << "B - Boss" << std::endl;
+    std::cout << "# - Wall" << std::endl;
+    std::cout << "t - Tree" << std::endl;
+    std::cout << "s - Stone" << std::endl;
+    std::cout << "i - Iron" << std::endl;
+    std::cout << "T - Titanium" << std::endl;
+    std::cout << "0 - Barrel0" << std::endl;
+    std::cout << "1 - Barrel1 (can be broken with Wooden Axe)" << std::endl;
+    std::cout << "2 - Barrel2 (can be broken with Stone Axe)" << std::endl;
+    std::cout << "3 - Barrel3 (can be broken with Iron Axe)" << std::endl;
+    std::cout << "4 - Barrel4 (can be broken with Titanium Axe)" << std::endl;
+    std::cout << "5 - Barrel5 (can be broken with Etherite Axe)" << std::endl;
+    std::cout << "X - Exit" << std::endl;
+}
+
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
 int main() {
-    Game game;
+    std::cout << "=== The Etherite Mines ===" << std::endl;
+    std::cout << "Long ago... a human lived and thrived!" << std::endl
+    << "But one day, their boss assigned them a task..." << std::endl
+    << "The task was to find the legendary Etherite..." << std::endl
+    << "And to kill the Etherite Protector since it guarded the mines" << std::endl
+    << "One Etherite... Powerful enough and extremely expensive..." << std::endl
+    << "Then the human understood that they don\'t have to give it..." << std::endl
+    << "They can just take it for themselves!" << std::endl
+    << "And so, the human ventured into the mines..." << std::endl
+    << "To find the Etherite and become the richest and most powerful human in history!" 
+    << std::endl << std::endl << std::endl;
+
+    std::cout << "Enter Human\'s name: ";
+    std::string name;
+    std::getline(std::cin, name);
+
+    Game game(name);
     game.initialize();
-    
-    std::cout << "=== OOP Dungeon Game ===" << std::endl;
-    std::cout << "Welcome! Each action is a tick." << std::endl;
+
+    std::cout << "\nPress enter to continue...";
+    std::cin.get();
+    clearScreen();
+
+    printTiles();
     printControls();
+    std::cout << "\nPress enter to continue...";
+    std::cin.get();
     
     bool running = true;
     std::string input;
@@ -46,6 +95,7 @@ int main() {
     
     while(running) {
         if(showZone) {
+            clearScreen();
             game.displayZone();
         }
         
@@ -109,10 +159,22 @@ int main() {
                 }
                 break;
             case 'p':
+                clearScreen();
                 game.displayPlayerStats();
+                std::cout << "\nPress enter to continue...";
+                std::cin.get();
                 continue;
             case 'h':
+                clearScreen();
                 printControls();
+                std::cout << "\nPress enter to continue...";
+                std::cin.get();
+                continue;
+            case 'm':
+                clearScreen();
+                printTiles();
+                std::cout << "\nPress enter to continue...";
+                std::cin.get();
                 continue;
             case 'q':
                 std::cout << "Thanks for playing!" << std::endl;
@@ -134,6 +196,9 @@ int main() {
             case GameAction::DROP_ITEM:
                 showZone = false;
                 break;
+            case GameAction::ATTACK:
+                std::cout << "\nPress enter to continue...";
+                std::cin.get();
             default:
                 showZone = true;
                 break;
@@ -149,3 +214,4 @@ int main() {
     
     return 0;
 }
+
