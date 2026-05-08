@@ -2,7 +2,7 @@
 #include"Item.h"
 #include<vector>
 
-constexpr int DefaultToolHP = 5;
+constexpr int DefaultToolHP = 10;
 
 enum class ResourceType;
 
