@@ -8,13 +8,15 @@
 #include<algorithm>
 #include<limits>
 
-Game::Game() : 
+Game::Game(const std::string& playerName) : 
 world(std::make_unique<World>()), 
-player(std::make_unique<Player>("Hero", 5, 5, 100, 10, 0)),
+player(std::make_unique<Player>(playerName, 5, 5, 100, 10, 0)),
 currentZone(nullptr),
 currentFloor(1),
 enemyUpdateCounter(0),
-playerActionCounter(0) {}
+playerActionCounter(0),
+hasKilled(false),
+hasBroken(false) {}
 
 void Game::initialize() {
     world->InitializeFloors();
@@ -59,6 +61,10 @@ void Game::checkCollisions(int newX, int newY) {
     
     // Check if stepping on zone exit
     if(tile->Type() == TileType::ZONE_EXIT) {
+        if(handleFinalFloorExit()) {
+            return;
+        }
+
         if(world->activeFloor && world->activeFloor->NextZone()) {
             currentZone = world->activeFloor->ActiveZone();
             Vector2 center = currentZone->Center();
@@ -76,6 +82,55 @@ void Game::checkCollisions(int newX, int newY) {
             std::cout << "You have reached the final floor." << std::endl;
         }
     }
+}
+
+bool Game::isFinalFloorFinalZone() const {
+    if(!world->activeFloor) {
+        return false;
+    }
+
+    return currentFloor == world->TotalFloors() &&
+           world->activeFloor->ActiveZoneIndex() == world->activeFloor->Number_ofZones() - 1;
+}
+
+bool Game::handleFinalFloorExit() const {
+    if(!isFinalFloorFinalZone()) {
+        return false;
+    }
+
+    bool bossAlive = false;
+    for(const auto& entity : currentZone->getEntities()) {
+        Boss* boss = dynamic_cast<Boss*>(entity.get());
+        if(boss) {
+            bossAlive = boss->isAlive();
+            break;
+        }
+    }
+
+    if(bossAlive) {
+        if(hasKilled) {
+            std::cout << "Neutral Ending: You have escaped the Etherite Mines but with your hands stained!" << std::endl;
+            exit(0);
+        } else {
+            if(player->InventorySize() == 0 && !hasBroken) {
+                std::cout << "Escaper\'s Ending: You have escaped only, that\'s it. You didn\'t even play the game properly... What\'s wrong with you!" << std::endl;
+                exit(0);
+            }
+            else if(player->InventorySize() == 0) {
+                std::cout << "Weird Ending: You weirdo! You emptied your inventory and for what? Why?" << std::endl;
+                exit(0);
+            }
+            else {
+                std::cout << "Pacifist Ending: You spare the Etherite Protector and leave the mines in it\'s protection!" << std::endl;
+                exit(0);
+            }
+        }
+    } else {
+        std::cout << "Greedy Ending: You have slain the Etherite Protector and claimed the Etherite mines for yourself!" << std::endl;
+        exit(0);
+    }
+
+    return true;
 }
 
 void Game::updateEnemies() {
@@ -336,12 +391,21 @@ void Game::throwPotion(int itemIndex) {
         return;
     }
     
+    Entity* target = targetEnemy();
+    if(!target) {
+        return;
+    }
+
     Item* item = player->getItemAt(itemIndex);
     if(!item || item->Type() != ItemType::POTION) {
         return;
     }
-    
-    player->useItem(targetEnemy(), itemIndex);
+
+    bool wasAlive = target->isAlive();
+    player->useItem(target, itemIndex);
+    if(wasAlive && !target->isAlive()) {
+        hasKilled = true;
+    }
 }
 
 void Game::tick(GameAction action, int itemIndex) {
@@ -374,7 +438,19 @@ void Game::tick(GameAction action, int itemIndex) {
                 }
             }
             if(target) {
+                bool wasAlive = target->isAlive();
                 player->attack(*target);
+                if(wasAlive && !target->isAlive()) {
+                    hasKilled = true;
+                }
+                Boss* bossTarget = dynamic_cast<Boss*>(target);
+                if(bossTarget && bossTarget->isAlive()) {
+                    std::cout<<*bossTarget<<std::endl;
+                }
+                Enemy* enemyTarget = dynamic_cast<Enemy*>(target);
+                if(enemyTarget && enemyTarget->isAlive() && !bossTarget) {
+                    std::cout<<*enemyTarget<<std::endl;
+                }
             }
             break;
         }
@@ -422,6 +498,7 @@ void Game::tick(GameAction action, int itemIndex) {
                         if(drop.item && drop.amount > 0) {
                             player->addItem(std::move(drop.item), drop.amount);
                             std::cout << "Collected resource!" << std::endl;
+                            hasBroken = true;
                         }
                         // Replace with ground
                         tile->ReplaceTile(Tile());
@@ -541,26 +618,26 @@ void Game::displayZone() const {
                         std::cout << ' ';
                         break;
                     case TileType::WALL:
-                        std::cout << 'w';
+                        std::cout << '#';
                         break;
                     case TileType::ZONE_BOUNDARY:
                         std::cout << '#';
                         break;
                     case TileType::ZONE_EXIT:
-                        std::cout << 'E';
+                        std::cout << 'X';
                         break;
                     case TileType::RESOURCE: {
                         Breakable* resource = dynamic_cast<Breakable*>(tile);
                         if(resource) {
                             switch(resource->Type()) {
                                 case ResourceType::TREE:
-                                    std::cout << 'T';
+                                    std::cout << 't';
                                     break;
                                 case ResourceType::STONE:
-                                    std::cout << 'S';
+                                    std::cout << 's';
                                     break;
                                 case ResourceType::IRON:
-                                    std::cout << 'I';
+                                    std::cout << 'i';
                                     break;
                                 case ResourceType::TITANIUM:
                                     std::cout << 'T';
@@ -571,7 +648,7 @@ void Game::displayZone() const {
                                 case ResourceType::BARREL3:
                                 case ResourceType::BARREL4:
                                 case ResourceType::BARREL5:
-                                    std::cout << 'B';
+                                    std::cout << 'b';
                                     break;
                             }
                         } else {
@@ -613,6 +690,14 @@ void Game::displayPlayerStats() const {
     std::cout << "Damage: " << player->Damage() << std::endl;
     std::cout << "XP: " << player->XP() << std::endl;
     std::cout << "Position: (" << player->PosX() << ", " << player->PosY() << ")" << std::endl;
+    std::cout << "Effects:\n";
+    if(player->Effects().empty()) {
+        std::cout << " None";
+    } else {
+        for(const auto& [type, effect] : player->Effects()) {
+            std::cout << effect << std::endl;
+        }
+    }
     std::cout << "====================" << std::endl;
 }
 
