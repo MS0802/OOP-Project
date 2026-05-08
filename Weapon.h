@@ -2,11 +2,11 @@
 #include"Item.h"
 #include<vector>
 
-constexpr int DefaultSwordDmg = 5;
-constexpr int DefaultSpearDmg = 4;
+constexpr int DefaultSwordDmg = 10;
+constexpr int DefaultSpearDmg = 9;
 
-constexpr int DefaultSwordHP = 4;
-constexpr int DefaultSpearHP = 5;
+constexpr int DefaultSwordHP = 9;
+constexpr int DefaultSpearHP = 10;
 
 class Weapon : public Item {
     protected:
