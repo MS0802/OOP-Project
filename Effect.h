@@ -1,12 +1,13 @@
 #pragma once
 #include<algorithm>
+#include<iostream>
 
-constexpr int healingValue = 2;
-constexpr int poisonDamage = 2;
+constexpr int healingValue = 10;
+constexpr int poisonDamage = 10;
 constexpr int strengthValue = 5;
 constexpr int weaknessValue = 5;
-constexpr int resistanceValue = 3;
-constexpr int vulnerableDefense = 3;
+constexpr int resistanceValue = 5;
+constexpr int vulnerableDefense = 5;
 
 enum class EffectType {
     HEAL,
@@ -30,4 +31,5 @@ class Effect {
         EffectType Effect_Give() const;
         double& Time();
         bool Can_Give() const;
+        friend std::ostream& operator<<(std::ostream& os, const Effect& effect);
 };
