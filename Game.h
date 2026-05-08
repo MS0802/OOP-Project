@@ -28,17 +28,21 @@ class Game {
         int currentFloor;
         int enemyUpdateCounter;
         int playerActionCounter;
+        bool hasKilled;
+        bool hasBroken;
         
         Entity* targetEnemy();
         void updateEnemies();
         void craft();
         void throwPotion(int itemIndex);
         void checkCollisions(int newX, int newY);
+        bool isFinalFloorFinalZone() const;
+        bool handleFinalFloorExit() const;
         bool canMoveTo(int x, int y) const;
         bool canMoveTo(int x, int y, const Entity* ignoreEntity) const;
         
     public:
-        Game();
+        Game(const std::string& playerName = "Hero");
         
         void initialize();
         void tick(GameAction action, int itemIndex = -1);
