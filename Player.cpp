@@ -237,6 +237,7 @@ void Player::Effect_Action(EffectType type) {
 int Player::XP() const { return xp; }
 int Player::InventorySize() const { return inventory.size(); }
 bool Player::isInventoryFull() const { return inventory.size() >= MAX_INVENTORY_SIZE; }
+std::unordered_map<EffectType, Effect> Player::Effects() const { return effects; }
 
 const std::vector<ItemStack>& Player::getInventory() const { return inventory; }
 const Item* Player::getEquippedItem() const { return on_Hand.get(); }
