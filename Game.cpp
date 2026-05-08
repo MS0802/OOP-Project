@@ -643,12 +643,22 @@ void Game::displayZone() const {
                                     std::cout << 'T';
                                     break;
                                 case ResourceType::BARREL0:
+                                    std::cout << '0';
+                                    break;
                                 case ResourceType::BARREL1:
+                                    std::cout << '1';
+                                    break;
                                 case ResourceType::BARREL2:
+                                    std::cout << '2';
+                                    break;
                                 case ResourceType::BARREL3:
+                                    std::cout << '3';
+                                    break;
                                 case ResourceType::BARREL4:
+                                    std::cout << '4';
+                                    break;
                                 case ResourceType::BARREL5:
-                                    std::cout << 'b';
+                                    std::cout << '5';
                                     break;
                             }
                         } else {
