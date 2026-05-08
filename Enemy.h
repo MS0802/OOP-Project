@@ -6,6 +6,7 @@
 #include<random>
 #include<vector>
 #include<utility>
+#include<iostream>
 
 enum class EnemyType {
     NORMAL,
@@ -55,4 +56,6 @@ class Enemy : public Entity {
         static Enemy Poison(int startX, int startY);
         static Enemy Healer(int startX, int startY);
         static Enemy Wizard(int startX, int startY);
+
+        friend std::ostream& operator<<(std::ostream& os, const Enemy& enemy);
 };
